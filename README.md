@@ -59,6 +59,97 @@ username=kim&age=20
 - 헤더: 헤더 조회
 - 바디: form 파라미터 형식 조회, message body 데이터 직접 조회
 
+<br>
+
+---
+
+
+### 3. HTTP 요청 데이터
+
+<br>
+
+**HTTP 요청 메시지 이용하여 클라이언트에서 서버로 데이터 전달하는 방법**
+
+1. GET - 쿼리 파라미터
+   - /url?**username=hello&age=20**
+   - `?`으로 시작, `&`로 파라미터 구분
+   - 메시지 바디 없이(content-type 없음) URL의 쿼리 파라미터에 데이터를 포함해서 전달
+   - 검색, 필터, 페이징 등에서 많이 사용
+
+
+2. POST - HTML Form
+   - content-type:application/x-www-form-urlencoded
+   - 메시지 바디에 쿼리 파라미터 형식으로 데이터 전달
+   - 바디에 포함된 데이터 형식 content-type을 꼭 지정해야함
+
+
+3. HTTP message body
+   - HTTP API에서 주로 사용. 
+   - TEXT, JSON, XML. 데이터 형식은 주로 JSON 사용
+   - POST, PUT, PATCH
+   
+   - TEXT(단순 텍스트 메시지)
+     - InputStream을 사용하여 직접 읽음
+     - inputStream은 byte 코드를 반환 -> byte 코드를 문자(String)으로 보기 위해 문자표(Charset)를 지정
+         ```java
+         String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+         ```
+   - JSON
+     - JSON 형식을 파싱할 수 있는 자바 객체로 변환하기 위해 Jackson, Gson같은 JSON 변환 라이버르를 사용.
+     - 스프링 부트로 Spring MVC를 선택하면 기본으로 Jackson 라이브러리(ObjectMapper)를 함께 제공
+         ```java
+         private ObjectMapper objectMapper = new ObjectMapper();
+         HelloData helloData = objectMapper.readValue(messageBody, HelloData.class);
+         ```
+<br>
+
+---
+
+### 4. HttpServletResponse
+
+<br>
+
+역할
+- HTTP 응답 메시지 생성
+- HTTP 응답코드 지정
+- 헤더 및 바디 생성
+- 편의 기능 제공 - Content-Type, 쿠키, Redirect
+````java
+response.setStatus(HttpServletResponse.SC_OK); // 200
+        
+response.setHeader("Content-Type", "text/plain;charset=utf-8");
+
+response.setContentType("text/plain");
+response.setCharacterEncoding("utf-8");
+
+Cookie cookie = new Cookie("myCookie", "good");
+cookie.setMaxAge(600); //600초
+response.addCookie(cookie);
+
+response.sendRedirect("/basic/hello-form.html");
+````
+
+<br>
+
+---
+
+### 5. HTTP 응답 데이터
+
+<br>
+
+1. 단순 텍스트
+   ```java
+    writer.println("ok");
+    ```
+
+2. HTML 응답
+   - content-type을 `text/html`로 지정
+
+
+3. HTTP API - MessageBody JSON 응답
+   - content-type을 `application/json`로 지정
+   - Jackson 라이브러리가 제공하는 `objectMapper.writeValueAsString()`를 사용하여 객체를 JSON 문자로 변경
+   - `application/json`은 스팩상 utf-8 형식을 사용하도록 정의 -> `charset=utf-8`과 같은 추가 파라미터 지원 x
 
 
 
