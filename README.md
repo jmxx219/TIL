@@ -152,7 +152,23 @@ response.sendRedirect("/basic/hello-form.html");
    - `application/json`은 스팩상 utf-8 형식을 사용하도록 정의 -> `charset=utf-8`과 같은 추가 파라미터 지원 x
 
 
+<br>
 
+---
+
+### 6. 템플릿 엔진
+
+<br>
+
+- 서블릿을 이용하여 동적으로 HTML을 만들수 있음
+- 자바 코드로 HTML을 만드는 것은 복잡하고 비효율적
+- 템플릿 엔진은 HTMl 문서에 동적으로 변경해야하는 부분만(필요한 부분만) 코드를 적용해서 동적으로 변경할 수 있게 해줌
+- JSP, Thymeleaf, Freemarker, Velocity 등
+- JSP는 성능과 기능면에서 다른 템플릿 엔진에 밀리고 있음. Thymeleaf는 스프링과 잘 통합됨
+
+<br>
+
+---
 
 
 
