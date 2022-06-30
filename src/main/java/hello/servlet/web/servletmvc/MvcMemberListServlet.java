@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.List;
 
 @WebServlet(name = "MvcMemberListServlet", urlPatterns = "/servlet-mvc/members")
-public class MvcMemberListServlet extends HelloServlet {
+public class MvcMemberListServlet extends HelloServlet { // 회원 목록 조회 컨트롤러
 
     private MemberRepository memberRepository = MemberRepository.getInstance();
 
@@ -23,7 +23,7 @@ public class MvcMemberListServlet extends HelloServlet {
 
         request.setAttribute("members", members);
 
-        String viewPath = "/WEB-INF/views/members.jsp";
+        String viewPath = "/WEB-INF/views/members.jsp"; // 회원 목록 조회 뷰
         RequestDispatcher dispatcher = request.getRequestDispatcher(viewPath);
         dispatcher.forward(request, response);
 

@@ -152,11 +152,20 @@ response.sendRedirect("/basic/hello-form.html");
    - `application/json`은 스팩상 utf-8 형식을 사용하도록 정의 -> `charset=utf-8`과 같은 추가 파라미터 지원 x
 
 
+
+<br>
+<br>
+<br>
+
+
+# 서블릿, JSP, MVC 패턴
+
 <br>
 
 ---
 
-### 6. 템플릿 엔진
+
+### 1. 템플릿 엔진
 
 <br>
 
@@ -169,6 +178,131 @@ response.sendRedirect("/basic/hello-form.html");
 <br>
 
 ---
+
+
+### 2. JSP
+
+
+```html
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="hello.servlet.domain.member.Member" %>
+<%@ page import="hello.servlet.domain.member.MemberRepository" %>
+<%
+    MemberRepository memberRepository = MemberRepository.getInstance();
+    
+    String username = request.getParameter("username");
+    int age = Integer.parseInt(request.getParameter("age"));
+    
+    Member member = new Member(username, age);
+    memberRepository.save(member);
+%>
+<html>
+<head>
+    <title>Title</title>
+</head>
+<body>
+<ul>
+    <li>id=<%=member.getId()%></li>
+    <li>username=<%=member.getUsername()%></li>
+    <li>age=<%=member.getAge()%></li>
+</ul>
+</body>
+</html>
+```
+- JSP는 자바 코드를 그대로 사용할 수 있음
+  - `<%@ page contentType="text/html;charset=UTF-8" language="java" %>`
+    - 자바의 import문과 같이 JSP 문서는 다음과 같이 시작함
+  - `<% ~~ %>` 자바 코드를 입력
+  - `<%= ~~ %>` 자바 코드를 출력
+- 서블릿과 다르게 HTML을 중심으로, HTML 코드 부분에 자바 코드를 입력함
+
+<br>
+
+**서블릿과 JSP 한계**
+
+- 서블릿을 이용하여 뷰(view)를 작업할 때는 자바 코드에 HTML을 넣어 지저분하고 복잡함
+- JSP를 사용하면서 뷰를 생성하는 HTML 작업이 깔끔해지고, 동적으로 변경이 필요한 부분만 자바 코드에 적용 가능해짐
+- JSP 코드의 절반은 비즈니스 로직이고 나머지는 HTML로 보여주기 위한 뷰 영역으로, 많은 코드가 JSP에 노출됨
+  - JSP가 많은 역할을 담당
+- 해결책! -> **MVC 패턴 등장**
+  - 비즈니스 로직은 서블릿처럼 다른 곳에서 처리
+  - JSP는 목적에 맞게 HTML로 뷰를 그리는 역할만 담당
+  
+
+<br>
+
+---
+
+
+### 3. MVC 패턴
+
+- 너무 많은 역할
+  - 서블릿과 JSP로 비즈니스 로직과 뷰 렌더링 모두 처리 -> 많은 역할을 담당 -> 유지보수가 어려워짐
+- 변경의 라이프 사이클
+  - 비즈니스 로직과 뷰 UI를 수정하는 라이프 사이클이 다른 것이 문제
+  - 각각 다르게 발생할 가능성이 높고 대부분 서로에게 영향 X
+  - 변경 라이프 사이클이 다른 부분을 하나의 코드로 관리하는 것은 유지보수에 좋지 않음
+- 기능 특화
+  - JSP와 같은 뷰 템플릿은 화면을 렌더링 하는데 최적화 -> 해당 부분만 담당하는 것이 효과적
+
+<br>
+
+**Model View Controller**
+- 모델(Model)
+  - 뷰가 필요한 데이터를 담아서 전달해줌
+  - 뷰는 비즈니스 로직이나 데이터 접근을 몰라도 되기 때문에 화면 렌더링 일에만 집중 
+- 뷰(View)
+  - 모델에 담겨있는 데이터를 사용하여 화면을 그리는 작업 진행
+  - HTML을 생성하는 부분
+- 컨트롤러(Controller)
+  - HTTP 요청을 받아서 파라미터를 검증하고 비즈니스 로직을 실행
+  - 뷰에 전달할 결과 데이터를 조회해서 모델에 주입
+- 서비스(Service)
+  - 컨트롤러에 비즈니스 로직을 맡길 경우, 컨트롤러가 너무 많은 역할을 담당함. 
+  - 일반적으로 비즈니스 로직은 서비스(Service)라는 계층을 별도로 만들어서 처리
+  - 컨트롤러는 비즈니스 로직이 있는 서비스를 호출하는 역할을 담당
+
+<br>
+
+**MVC 패턴 한계**
+- MVC 패턴 적용으로 컨트롤러의 역할과 뷰를 렌더링하는 역할을 명확히 구분
+- 뷰는 화면을 그리는 역할만 담당하여 코드가 깔끔하고 직관적임. 단순히 모델에서 필요한 데이터를 꺼내고 화면을 만듦
+- 컨트롤러는 여전히 중복이 많고 필요하지 않은 코드들이 있음
+- MVC 컨트롤러 단점
+  - 포워드 중복 - View로 이동하는 코드가 항상 중복 호출됨
+  ```java
+  RequestDispatcher dispatcher = request.getRequestDispatcher(viewPath);
+  dispatcher.forward(request, response);
+  ```
+  - ViewPath 중복 - prefix: /WEB-INF/views, suffix: .jsp
+  ```java
+  String viewPath = "/WEB-INF/views/new-form.jsp";
+  ```
+  - 사용하지 않는 코드
+  ````java
+  HttpServletRequest request, HttpServletResponse response
+  ````
+  - 공통 처리 어려움
+    - 기능이 복잡해질수록 컨트롤러에서 공통으로 처리하는 부분 증가 -> 중복
+
+<br>
+
+**MVC 컨트롤러의 공통 처리가 어렵다는 문제 해결**
+- 컨트롤러 호출 전에 먼저 공통 기능을 처리해야 함
+- 프론트 컨트롤러(Front Controller)패턴을 도입하여 해결
+
+<br>
+
+---
+
+
+
+
+
+
+
+
+
 
 
 

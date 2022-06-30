@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebServlet(name = "mvcMemberSaveServlet", urlPatterns = "/servlet-mvc/members/save")
-public class MvcMemberSaveServlet extends HttpServlet {
+public class MvcMemberSaveServlet extends HttpServlet { // 회원 저장 컨트롤러
 
     private MemberRepository memberRepository = MemberRepository.getInstance();
 
@@ -28,7 +28,7 @@ public class MvcMemberSaveServlet extends HttpServlet {
         // Model에 데이터를 보관함
         request.setAttribute("member", member);
 
-        String viewPath = "/WEB-INF/views/save-result.jsp";
+        String viewPath = "/WEB-INF/views/save-result.jsp"; // 회원 저장 뷰
         RequestDispatcher dispatcher = request.getRequestDispatcher(viewPath);
         dispatcher.forward(request, response);
 
