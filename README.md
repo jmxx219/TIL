@@ -320,14 +320,33 @@ response.sendRedirect("/basic/hello-form.html");
   2. Front Controller - URL 매핑 정보에서 컨트롤러 조회
      - controllerMap :  <매핑 URL, 호출될 컨트롤러>
   3. Front Controller - 컨트롤러 호출
-     ```java
-        String requestURI = request.getRequestURI();
-        ControllerV1 controller = controllerMap.get(requestURI);
-        controller.process(request, response);
-     ```
+    ````java
+    String requestURI = request.getRequestURI();
+    ControllerV1 controller = controllerMap.get(requestURI);
+    controller.process(request, response);
+     ````
   4. Controller - JSP forward
   5. JSP - 클라이언트에 HTML 응답
-  
+- View 분리
+    1. 클라이언트 - HTTP 요청
+    2. Front Controller - URL 매핑 정보에서 컨트롤러 조회, 컨트롤러 호출 
+    3. Controller - MyView 반환
+    ```java
+    public class MemberFromControllerV2 implements ControllerV2 {
+        @Override
+        public MyView process(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+            return new MyView("/WEB-INF/views/new-form.jsp");
+        }
+    } 
+    ```
+    4. Front Controller - render() 호출
+    ```java
+    MyView view = controller.process(request, response);
+    view.render(request, response);
+    ```
+    5. Controller - JSP forward
+    6. JSP - 클라이언트에 HTML 응답
+
 
 
 
