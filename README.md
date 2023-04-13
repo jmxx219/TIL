@@ -295,7 +295,39 @@ response.sendRedirect("/basic/hello-form.html");
 
 ---
 
+### 4. MVC 프레임워크 만들기
 
+<br>
+
+**Front Controller(프론트 컨트롤러) 패턴**
+- 도입 전에는 각 컨트롤러마다 공통 로직을 만들어야했었음.
+- 도입 후에는 공통 로직은 프론트 컨트롤러에서 처리하고, 각자 처리해야하는 로직은 각 컨틀롤러에 처리하도록 함
+- 공통의 관심사를 별도로 모으는 역할을 함
+- 특징
+  - 서블릿 하나로 클라이언트의 요청을 모두 받음
+  - 프론트 컨트롤러가 요청에 맞는 컨트롤러를 찾아서 호출함
+  - 공통 처리 가능
+  - 프론트 컨트롤러를 제외한 나머지 컨트롤러는 서블릿을 사용하지 않아도 됨 -> 프론트 컨트롤러가 나머지 컨트롤러를 직접 호출해주기 때문
+  - 스프링 웹 MCV의 핵심으로, DispatcherServlet이 FrontController 패턴으로 구현됨
+
+<br/>
+
+**Front Controller**
+- 도입
+  1. 클라이언트 - HTTP 요청
+     - urlPatterns = "/front-controller/v1/*"
+     - 하위 모든 요청은 Front Controller Servlet에서 처리
+  2. Front Controller - URL 매핑 정보에서 컨트롤러 조회
+     - controllerMap :  <매핑 URL, 호출될 컨트롤러>
+  3. Front Controller - 컨트롤러 호출
+     ```java
+        String requestURI = request.getRequestURI();
+        ControllerV1 controller = controllerMap.get(requestURI);
+        controller.process(request, response);
+     ```
+  4. Controller - JSP forward
+  5. JSP - 클라이언트에 HTML 응답
+  
 
 
 
