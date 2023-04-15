@@ -332,22 +332,67 @@ response.sendRedirect("/basic/hello-form.html");
     2. Front Controller - URL 매핑 정보에서 컨트롤러 조회, 컨트롤러 호출 
     3. Controller - MyView 반환
     ```java
-    public class MemberFromControllerV2 implements ControllerV2 {
-        @Override
-        public MyView process(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-            return new MyView("/WEB-INF/views/new-form.jsp");
-        }
-    } 
+    @Override
+    public MyView process(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        return new MyView("/WEB-INF/views/new-form.jsp");
+    }
     ```
     4. Front Controller - render() 호출
     ```java
     MyView view = controller.process(request, response);
     view.render(request, response);
     ```
-    5. Controller - JSP forward
+    5. MyView - JSP forward
     6. JSP - 클라이언트에 HTML 응답
-
-
+- Model 추가
+    1. 클라이언트 - HTTP 요청
+    2. Front Controller - URL 매핑 정보에서 컨트롤러 조회, 컨트롤러 호출
+       - `createParamMap` : 파라미터 정보를 Map으로 변환하여 컨트롤러에 전달
+        ```java
+        // paramMap
+        Map<String, String> paramMap = createParamMap(request);
+        ModelView mv = controller.process(paramMap);
+        ```
+    3. Controller - **ModelView** 반환
+       - 기존
+         - 서블릿에 종속적인 `HttpServletRequest` 사용
+         - Model을 `request.setAttribute()`를 통해 데이터를 저장하고 뷰에 전달함
+       - 개선
+         - 서블릿의 종속성 제거 -> Model 생성
+         ```java
+         public class ModelView {
+             private String viewName;
+             private Map<String, Object> model = new HashMap<>(); // view에 필요한 데이터 저장
+         }
+         ```
+         - 뷰 이름의 중복 제거 -> 논리 이름만 전달, 물리적인 이름은 프론트 컨트롤러에서 처리
+         ```java
+         @Override
+         public ModelView process(Map<String, String> paramMap) {
+             List<Member> members = memberRepository.findAll();
+             ModelView mv = new ModelView("members"); // view의 논리 이름
+             mv.getModel().put("members", members); // view에 필요한 데이터 저장
+             return mv;
+         }
+         ```
+    4. Front Controller - viewResolver 호출
+        - View Resolver : 컨트롤러가 반환한 논리 뷰 이름을 물리 뷰 경로로 변경
+        ```java
+        String viewName = mv.getViewName();// 논리 이름 -> new-form
+        MyView view = new MyView("/WEB-INF/views/" + viewName + ".jsp"); // view Resolver
+        view.render(mv.getModel(), request, response);
+        ```
+    5. viewResolver - MyView 반환
+    6. Front Controller - render(model) 호출
+    7. MyView - JSP forward 
+        ```java
+        public void render(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+            model.forEach((key, value) -> request.setAttribute(key, value)); // JSP는 getAttribute()로 데이터를 조회함
+            RequestDispatcher dispatcher = request.getRequestDispatcher(viewPath);
+            dispatcher.forward(request, response);
+        }
+        ```
+    8. JSP - 클라이언트에 HTML 응답
 
 
 
