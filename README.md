@@ -395,7 +395,62 @@ response.sendRedirect("/basic/hello-form.html");
     8. JSP - 클라이언트에 HTML 응답
 - Controller 개선
   - Model을 프론트 컨트롤러에서 생성하여 각 컨트롤러로 전달
-  - 컨트롤러는 뷰의 논리 이름만 반환하고, 모델에 데이터를 저장함
+  - 컨트롤러는 뷰의 논리 이름만 반환하고, 모델에 데이터를 저장함  
+  
+<br/>
+
+**Adapter pattern(어댑터 패턴) 도입**
+
+기존 구조를 유지하면서 프레임워크의 기능을 확장할 수 있음
+
+- 기존에는 한 가지 방식의 인터페이스만 사용 가능
+  - `ControllerV3`와 `ControllerV4`는 호환이 불가능함
+- 어댑터 패턴을 이용하여 프론트 컨트롤러가 다양한 인터페이스를 처리할 수 있도록 함
+1. 클라이언트 - HTTP 요청
+   - `/front-controller/v5/v3/members/new-form` 요청
+2. Front Controller 
+   - 핸들러 매핑 정보에서 핸들러 조회 
+     - `MemberFormControllerV3` 핸들러 반환
+    ```java
+    String requestURI = request.getRequestURI();
+    Object handler = handlerMappingMap.get(requestURI);
+    ```
+   - 핸들러를 처리할 수 있는 핸들러 어댑터 조회
+     - 핸들러 `MemberFormControllerV3`가`ControllerV3`를 구현했다면, `ControllerV3HandlerAdapter` 어댑터가 반환됨
+    ```java
+    private MyHandlerAdapter getHandlerAdapter(Object handler) {
+        for (MyHandlerAdapter adapter : handlerAdapters) {
+            if(adapter.supports(handler)) return adapter;
+        }
+        throw new IllegalArgumentException("handler adapter를 찾을 수 없습니다. handler=" + handler);
+    }
+    ```
+    - 핸들러 어댑터의 handle(handler) 호출
+    ```java
+    MyHandlerAdapter adapter = getHandlerAdapter(handler); // ControllerV3HandlerAdapter
+    ModelView mv = adapter.handle(request, response, handler); // 실제 어댑터가 호출됨
+    ```
+3. Handler Adapter
+    - handler(실제 컨트롤러) 호출, ModelView 반환
+    ```java
+    public class ControllerV3HandlerAdapter implements MyHandlerAdapter {
+        @Override
+        public boolean supports(Object handler) { return (handler instanceof ControllerV3); }
+        
+        @Override
+        public ModelView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws ServletException, IOException {
+            ControllerV3 controller = (ControllerV3) handler; // 핸들러를 컨트롤러로 변환
+            Map<String, String> paramMap = createParamMap(request);
+            ModelView mv = controller.process(paramMap);
+            return mv;
+        }
+    }
+    ```
+4. viewResolver - MyView 반환
+5. Front Controller - render(model) 호출
+6. MyView - JSP forward 
+7. JSP - 클라이언트에 HTML 응답  
+
 
 
 
