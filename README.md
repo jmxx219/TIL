@@ -2,9 +2,6 @@
 
 <br>
 
----
-
-
 ### 1. 서블릿 환경 구성
 
 <br>
@@ -161,9 +158,6 @@ response.sendRedirect("/basic/hello-form.html");
 # 서블릿, JSP, MVC 패턴
 
 <br>
-
----
-
 
 ### 1. 템플릿 엔진
 
