@@ -393,9 +393,9 @@ response.sendRedirect("/basic/hello-form.html");
         }
         ```
     8. JSP - 클라이언트에 HTML 응답
-
-
-
+- Controller 개선
+  - Model을 프론트 컨트롤러에서 생성하여 각 컨트롤러로 전달
+  - 컨트롤러는 뷰의 논리 이름만 반환하고, 모델에 데이터를 저장함
 
 
 
