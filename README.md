@@ -513,6 +513,34 @@ public class SpringMemberListControllerV1 {
   - Model 데이터를 추가할 때는 `addObject()`를 사용
 
 
+### Spring MVC 개선
+
+- `@RequestMapping`
+  - 클래스 레벨과 메서드 레벨을 조합하여 유연하게 통합할 수 있음
+  - `/springmvc/v2/members/new-form`
+  ```java
+    @RequestMapping("/springmvc/v2/members")
+    public class SpringMemberControllerV2 {
+        @RequestMapping("/new-form")
+        public ModelAndView newForm() {
+            return new ModelAndView("new-form");
+        }
+    }
+  ```
+- `Model`을 파라미터로 받아서 데이터를 저장
+- `ViewName` 논리 이름을 직접 반환
+- `@RequestParam`로 HTTP 요청 파라미터를 받을 수 있음
+  - `@RequestParam("username")` == `request.getParameter("username")`
+  - 파라미터 이름을 넣어서 값을 가져오고, 자동으로 타입 변환이 됨
+  - Get 쿼리 파라미터와 Post Form 방식 모두 지원
+- `@RequestMapping` -> `@GetMapping`, `@PostMapping`
+  - `@RequestMapping`는 URL을 매칭하며 HTTP Method도 구분함
+  - `@GetMapping`, `@PostMapping`로 더 편리하게 사용 가능
+  ```java
+  // @RequestMapping(value = "/new-form", method = RequestMethod.GET)
+  @GetMapping("/new-form")
+  ```
+
 
 
 
