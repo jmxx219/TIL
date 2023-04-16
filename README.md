@@ -152,7 +152,6 @@ response.sendRedirect("/basic/hello-form.html");
 
 <br>
 <br>
-<br>
 
 
 # 서블릿, JSP, MVC 패턴
@@ -445,14 +444,73 @@ response.sendRedirect("/basic/hello-form.html");
 6. MyView - JSP forward 
 7. JSP - 클라이언트에 HTML 응답  
 
+<br>
+<br>
 
 
+# 스프링 MVC
+
+- `FrontController` - `DispatcherServlet`
+- `handlerMappingMap` - `HandleMapping`
+- `MyHandlerAdapter` - `HandlerAdapter`
+- `ModelView` - `ModelAndView`
+- `viewResolver` - `ViewResolver`
+- `MyView` - `View`
 
 
+### 1. DispatcherServlet
+- Spring MVC의 프론트 컨트롤러
+- Spring Boot는 DispatcherServlet을 서블릿으로 자동 등록하여 모든 경로에 대해 매핑함
+- 서블릿이 호출되면 `DispacherServlet.doDispatch()`가 호출됨
 
+### 2. HandleMapping과 HandlerAdapter
 
+- HandleMapping을 순서대로 실행해서, 핸들러(컨트롤러)를 찾음
+  1. `RequestMappingHandlerMapping` : 애노테이션 기반의 컨트롤러인 @RequestMapping에서 사용
+  2. `BeanNameUrlHandlerMapping` : 스프링 빈의 이름으로 핸들러를 찾음
+- HandlerAdapter의 supports()를 순서대로 호출해서 조회함
+  - 핸들러 매핑을 통해 찾은 핸들러를 실행할 수 있는 어댑터 필요
+  1. `RequestMappingHandlerAdapter` : 애노테이션 기반의 컨트롤러인 @RequestMapping에서 사용
+  2. `HttpRequestHandlerAdapter` : HttpRequestHandler 처리
+  3. `SimpleControllerHandlerAdapter` : Controller 인터페이스(애노테이션 x, 과거에 사용) 처리
+- 핸들러 어댑터를 실행하고 결과를 반환
 
+### 3. ViewResolver
 
+- Spring Boot는 뷰 리졸버를 자동으로 등록함
+  1. `BeanNameViewResolver` : 빈 이름으로 뷰를 찾아서 반환
+  2. `InternalResourceViewResolver` : JSP를 처리할 수 있는 뷰를 
+  - `Thymeleaf` 뷰 템플릿을 사용하면 `ThymeleafViewResolver`를 등록해야 함
+- `application.properties` 에 등록한 `spring.mvc.view.prefix`와 `spring.mvc.view.suffix` 설정 정보를 사용해서 등록
+
+### @RequestMapping
+`RequestMappingHandlerMapping`, `RequestMappingHandlerAdapter`
+- 스프링에서 주로 사용하는 애노테이션 기반의 컨트롤러를 지원하는 매핑과 어댑터
+```java
+@Controller
+// @Component //컴포넌트 스캔을 통해 스프링 빈으로 등록 
+// @RequestMapping
+public class SpringMemberListControllerV1 {
+    private MemberRepository memberRepository = MemberRepository.getInstance();
+    
+    @RequestMapping("/springmvc/v1/members")
+    public ModelAndView process() {
+        List<Member> members = memberRepository.findAll();
+        ModelAndView mv = new ModelAndView("members");
+        mv.addObject("members", members);
+        return mv; 
+    }
+}
+```
+- `@Controller`
+  - 스프링이 자동으로 스프링 빈으로 등록
+  - 내부 `@Component`가 있어 컴포넌트의 스캔 대상이 됨
+  - 스프링 MVC에서 애노테이션 기반 컨트롤러로 인식 
+  - `RequestMappingHandlerMapping`은 스프링 빈 중에서 `@Controller` 또는 `@RequestMapping`이 클래스 레벨에 붙어있을 경우 매핑 정보로 인식함
+    - `@Controller` 대신 `@RequestMapping`와 `@Component`를 사용해도 동일하게 동작함
+- `@RequestMapping`: 요정 정보를 매핑, 해당 URL이 호출되면 해당 메서드가 호출됨
+- `ModelAndView`: 모델과 뷰 정보를 담아서 반환
+  - Model 데이터를 추가할 때는 `addObject()`를 사용
 
 
 
