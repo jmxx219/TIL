@@ -11,7 +11,7 @@
 [README](https://github.com/jmxx219/Spring-Study/tree/main/basic-spring/README.md)
 
 
-### 2. 서블릿, JSP, MVC 패턴
+### 3. 서블릿, JSP, MVC 패턴
 
 `/servlet`
 [README](https://github.com/jmxx219/Spring-Study/blob/main/servlet/README.md)
