@@ -16,7 +16,10 @@
 `/servlet`
 [README](https://github.com/jmxx219/Spring-Study/blob/main/servlet/README.md)
 
+### 4. Spring MVC 기본 기능
 
+`/springmvc`
+[README](https://github.com/jmxx219/Spring-Study/blob/main/springmvc/README.md)
 
 <br>
 
