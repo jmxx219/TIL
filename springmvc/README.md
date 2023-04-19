@@ -250,7 +250,61 @@ public String headers(
         - 해당 객체를 HTTP 메시지 바디에 직접 넣을 수 있음
       - `HttpEntity`도 사용 가능
 
+## HTTP 응답
 
+스프링에서 응답 데이터를 만드는 방법
 
+### 정적 리소스
+- 웹 브라우저에서 정적인 HTML, CSS, JS를 제공할 때 사용
+- 스프링 부트는 클래스패스의 다음 디렉토리에 있는 정적 리소스를 제공
+  - `/static`, `/public`, `/resources`, `/META-INF/recources`
+- `src/main/resources`: 리소스를 보관하는 이며 클래스패스의 시작 경로
+  - 해당 경로에 리소스를 넣어두면 스프링 부트가 정적 리소스로 서비스(파일 변경없이 그대로)를 제공
+  - `src/main/resources/static`: 정적 리소스 경로
 
+### 뷰 템플릿
+- 웹 브라우저에 동적인 HTML을 제공할 때 사용
+- 뷰 템플릿을 거쳐서 HTML이 생성되고, 뷰가 응답을 만들어서 전달
+- `src/main/resources/templates`: 스프링 뷰트가 제공하는 기본 뷰 템플릿 경로
+    ```java
+    @Controller
+    public class ResponseViewController {
+    
+        @RequestMapping("/response-view-v1")
+        public ModelAndView responseViewV1() {
+            ModelAndView mv = new ModelAndView("response/hello").addObject("data", "hello!");
+            return mv;
+        }
+    
+        @RequestMapping("/response-view-v2")
+        public String responseViewV2(Model model) {
+            model.addAttribute("data", "hello!");
+            return "response/hello"; // 뷰의 논리 이름
+        }
+    }
+    ```
+  1. ModelAndView 반환
+  2. String 반환 - View or HTTP 메시지
+     - `@ResponseBody`가 없으면 `response/hello`로 뷰 리졸버 실행되어 뷰를 찾고 렌더링함
+       - 뷰의 논리 이름 반환 시 `templates/response/hello.html` 경로의 뷰 템플릿이 렌더링됨
+     - `@ResponseBody`가 있으면 HTTP 메시지 바디에 직접 `response/hello` 문자 입력
 
+### HTTP API, 메시지 바디에 직접 입력
+- HTTP API를 제공하는 경우 데이터를 전달하기 때문에 HTTP 메시지 바디에 JSON과 같은 형식으로 데이터를 보냄
+    1. `HttpServletResponse`
+       - 객체에 직접 응답 메시지 전달
+       - `response.getWriter().write("ok");`
+    2. `ResponseEntity`
+       - HTTP 응답 코드 설정 가능
+       - String: `return new ResponseEntity<>("ok", HttpStatus.OK);`
+       - JSON: `return new ResponseEntity<>(helloData, HttpStatus.OK)`;
+    3. `@ResponseBody`
+       - view를 사용하지 않고 HTTP 메시지 컨버터를 통해서 HTTP 메시지를 직접 입력
+       - 응답 코드를 설정하고 싶을 경우 `@ResponseStatus(HttpStatus.OK)` 함께 사용 가능
+       - String: `return "ok";`
+       - JSON: `return helloData;`
+- `@RestController`
+  - `@Controller` + `@ResponseBody`
+  - 해당 컨트롤러에 모두 `@ResponseBody`가 적용됨
+  - 뷰 템플릿이 아닌 HTTP 메시지 바디에 직접 데이터 입력
+    
