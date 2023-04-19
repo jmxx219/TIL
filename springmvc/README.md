@@ -250,6 +250,8 @@ public String headers(
         - 해당 객체를 HTTP 메시지 바디에 직접 넣을 수 있음
       - `HttpEntity`도 사용 가능
 
+<br/>
+
 ## HTTP 응답
 
 스프링에서 응답 데이터를 만드는 방법
@@ -307,4 +309,65 @@ public String headers(
   - `@Controller` + `@ResponseBody`
   - 해당 컨트롤러에 모두 `@ResponseBody`가 적용됨
   - 뷰 템플릿이 아닌 HTTP 메시지 바디에 직접 데이터 입력
-    
+
+
+<br/>
+
+## HTTP 메시지 컨버터
+
+HTTP API처럼 JSON 데이터를 HTTP 메시지 바디에 직접 읽거나 쓰는 경우 사용하면 편리
+
+### 스프링 MVC의 HTTP 메시지 컨버터 적용
+- HTTP 요청: `@RequestBody`, `HttpEntity(RequestEntity)`
+- HTTP 응답: `@ResponseBody`, `HttpEntity(ResponseBody)`
+
+### HTTP 메시지 컨버터 인터페이스
+
+- **HTTP 요청 데이터 읽기**
+  - `canRead()` : 메시지 컨버터가 해당 메시지를 읽을 수 있는지 확인
+    - 대상 클래스 타입 지원 확인
+      - ex) `@RequestBody`의 대상 클래스 (`byte[]`, `String`, `HelloData`)
+    - HTTP 요청의 Content-Type 미디어 타입 지원 확인
+      - ex) `text/plain`, `application/json`, `*/*`
+  - `read()` : 메시지를 읽는 기능(객체를 생성하고 반환함)
+- **HTTP 응답 데이터 생성**
+  - `canWrite()` : 메시지 컨버터가 메시지를 쓸 수 있는지 확인
+      - 대상 클래스 타입 지원 여부
+        - ex) return의 대상 클래스 (`byte[]`, `String`, `HelloData`)
+      - HTTP 요청의 Accept 미디어 타입을 지원 여부(`@RequestMapping`의 `produces`)
+        - ex) `text/plain`, `application/json`, `*/*`
+  - `write()` : 메시지를 쓰는 기능(HTTP 응답 메시지 바디에 데이터 생성)
+  
+### 스프링 부트 기본 메시지 컨버터
+
+다양한 메시지 컨버터를 제공하는데, 대상 클래스 타입과 미디어 타입을 체크해서 사용여부를 결정함. 만족하지 않으면 다음 우선순위로 넘어감
+
+1. ByteArrayHttpMessageConverter
+    - 클래스 타입: `byte[]`, 미디어타입: `*/*`
+      - 요청: `@RequestBody byte[] data`
+      - 응답: `@ResponseBody return byte[]`, 쓰기 미디어 타입 - `application/octet-stream`
+2. StringHttpMessageConverter
+    - 클래스 타입: `String`, 미디어타입: `*/*`
+      - 요청: `@RequestBody String data`
+      - 응답: `@ResponseBody return "ok"`, 쓰기 미디어 타입 - `text/plain`
+3. MappingJackson2HttpMessageConverter
+    - 클래스 타입: `객체` 또는 `HashMap`, 미디어타입: `application/json`
+        - 요청: `@RequestBody HelloData data`
+        - 응답: `@ResponseBody return helloData`, 쓰기 미디어 타입 - `application/json`
+
+<br/>
+
+## 요청 매핑 핸들러 어댑터 구조
+
+### RequestMappingHandlerAdapter
+
+`@RequestMapping`을 처리하는 핸들러 어댑터로 애노테이션 기반 컨트롤러를 처리함
+
+- `ArgumentResolver`
+  - HTTP 메시지를 처리해서 요청 데이터 생성(`@RequestBody`, `HttpEntity`)
+    - HTTP 메시지 컨버터를 사용하여 컨트롤러(핸들러)가 필요로하는 다양한 파라미터의 값(객체)을 생성
+    - 파라미터의 값이 준비가 되면 컨트롤러를 호출하여 값을 넘겨줌
+- `ReturnValueHandler`
+  - 응답 데이터를 HTTP 메시지에 입력(`@ResponseBody`, `HttpEntity`)
+    - HTTP 메시지 컨버터를 호출해서 응답 결과를 생성
+
