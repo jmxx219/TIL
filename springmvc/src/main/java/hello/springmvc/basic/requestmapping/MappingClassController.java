@@ -1,4 +1,4 @@
-package hello.springmvc.requestmapping;
+package hello.springmvc.basic.requestmapping;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
