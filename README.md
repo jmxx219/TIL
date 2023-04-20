@@ -21,6 +21,11 @@
 `/springmvc`
 [README](https://github.com/jmxx219/Spring-Study/blob/main/springmvc/README.md)
 
+### 5. 상품 관리 서비스 개발
+
+`/item-service`
+[README](https://github.com/jmxx219/Spring-Study/blob/main/item-service/README.md)
+
 <br>
 
 ---
