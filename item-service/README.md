@@ -50,12 +50,38 @@
   - 테스트용 데이터 추가
     - `@PostConstruct`: 빈의 의존관계가 모두 주입되고 나서 초기화 용도로 사용
 
-  
+<br/>  
   
 - 상품 목록 : `GET` - `/basic/items`
 - 상품 상세 : `GET` - `/basic/items/{itemId}`
 - 상품 등록 폼 : `GET` - `/basic/items/add`
 - 상품 등록 처리 : `POST` - `/basic/items/add`
+  - POST - HTML Form
+  - `@RequestParam`로 요청 파라미터 형식 처리
+      ```java
+      @PostMapping("/add")
+      public String addItemV1(@RequestParam String itemName, @RequestParam int price, @RequestParam Integer quantity, Model model) {
+          ...  
+          model.addAttribute("item", item);
+      }
+      ```
+  - `@ModelAttribute`
+    ```java
+    @PostMapping("/add")
+    public String addItemV2(@ModelAttribute("item") Item item) { }
+    
+    @PostMapping("/add")
+    public String addItemV3(@ModelAttribute Item item) { }
+    
+    @PostMapping("/add")
+    public String addItemV4(Item item, Model model) { }
+    ```
+    - 객체를 생성하고, 요청 파라미터의 값을 프로퍼티 접근법(setXxx)으로 입력함
+    - 모델(Model)에 `@ModelAttribute`로 지정한 객체를 자동으로 넣어줌 (`model.addAttribute()`생략 가능)
+      - 모델에 데이터를 담을 때 이름은 `@ModelAttribute`에 지정한 `name(value)` 속성을 사용
+    - `@ModelAttribute`의 `name` 생략 가능
+      - 모델에 저장될 때 클래스명의 첫글자만 소문자로 변경해서 등록함
+    - `@ModelAttribute` 자체 생략 가능
 
 
 
