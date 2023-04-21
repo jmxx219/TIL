@@ -92,8 +92,51 @@
   > HTML Form 전송은 `PUT`, `PATCH`를 지원 X, `GET`, `POST`만 사용 가능  
   >`PUT`, `PATCH`는 API 전송시에 사용함
 
+### PRG Post/Redirect/Get
 
+**상품 등록 처리 컨트롤러에서 문제점**
 
+- 상품 등록을 완료하고 웹 브라우저의 새로고침 버튼을 클릭하면 상품이 계속해서 중복 등록
+
+**전체 흐름**
+- 상품 목록 -> 상품 등록 폼 -> 상품 저장 -> 상품상세(내부 호출 - 뷰 템플릿)
+
+**POST 등록 후 새로 고침**
+- 웹 브라우저의 새로 고침은 마지막으로 서버에 전송한 데이터를 다시 전송함
+  - 상품 등록 폼에서 데이터를 입력하고 저장하면 `POST /add` + 상품 데이터를 서버로 전송
+  - 이 상태에서 새로 고침하면 마지막에 전송한 `POST /add` + 상품 데이터를 다시 서버로 전송함
+    - 내용은 같고, ID만 다른 상품이 계속 쌓이게됨
+
+**POST, Redirect GET**
+- 상품 저장 후에 뷰 템플릿으로 이동하지 않고, 상품 상세 화면으로 리다이렉트를 호출하여 해결
+- 웹 브라우저는 리다이렉트의 영향으로 상품 저장 후에 실제 상품 상세 화면으로 이동(URL 변경)
+- 마지막에 호출한 내용이 상품 상세 화면인 `GET /items/{id}`가 되기 때문에 새로고침 문제를 해결할 수 있음
+  - 이러한 문제 해결 방식을 `PRG Post/Redirect/Get`이라고 함
+```java
+@PostMapping("/add")
+public String addItemV5(@ModelAttribute Item item) {
+    itemRepository.save(item);
+    return "redirect:/basic/items/" + item.getId();
+}
+```
+  - `redirect`에서 `+ item.getId()`처럼 URL에 변수를 더해서 사용하는 것은 URL 인코딩이 되지 않아 위험함
+
+### RedirectAttributes
+
+URL 인코딩 및 `pathVarible`과 쿼리 파라미터까지 처리해줌
+
+```java
+@PostMapping("/add")
+public String addItemV6(@ModelAttribute Item item, RedirectAttributes redirectAttributes) {
+    Item savedItem = itemRepository.save(item);
+    redirectAttributes.addAttribute("itemId", savedItem.getId());
+    redirectAttributes.addAttribute("status", true);
+    return "redirect:/basic/items/{itemId}";
+}
+```
+- `redirect:/basic/items/{itemId}`
+  - pathVariable 바인딩: `{itemId}`
+  - 나머지는 쿼리 파라미터로 처리: `?status=true`
 
 <br/>
 
@@ -175,3 +218,10 @@ JSP
     - `model.addAttribute("items", items);`
     - 모델에 포함된 `item` 컬렉션 데이터에서 `item` 변수에 하나씩 포함되어 반복문 안에서 사용 가능함
 
+**조건**
+- `th:if`
+  - 해당 조건이 참이면 실행
+
+**Etc**
+- `${param.status}`
+  - 타임리프에서 쿼리 파라미터를 편리하게 조회하는 기능
