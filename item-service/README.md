@@ -40,9 +40,8 @@
 
 ## 상품 관리 기능
 
-### 상품 목록
+### `BasicItemController`
 
-**`BasicItemController`**
 - `@Controller` : 스프링빈 등록(`@Component`)
   - `ItemRepository`
     - `@Autowired`: 의존성 주입(생성자, setter, 필드)
@@ -51,7 +50,12 @@
   - 테스트용 데이터 추가
     - `@PostConstruct`: 빈의 의존관계가 모두 주입되고 나서 초기화 용도로 사용
 
-### 상품 상세
+  
+  
+- 상품 목록 : `GET` - `/basic/items`
+- 상품 상세 : `GET` - `/basic/items/{itemId}`
+- 상품 등록 폼 : `GET` - `/basic/items/add`
+- 상품 등록 처리 : `POST` - `/basic/items/add`
 
 
 
@@ -92,6 +96,11 @@ JSP
     - 원래의 값 `href="value1"`에서 `th:href="value2"`으로 변경, 없다면 새로 생성
 - `th:onclick`
   - `th:onclick="|location.href='@{/basic/items/add}'|"` : 클릭 시, 상품 등록 폼으로 이동
+- `th:value`
+  - 모델에 있는 정보를 가져와 출력
+    - `th:value="${item.id}"`
+  - `th:action`
+    - HTML Form에서 `action`에 값이 없으면 현재 URL에 데이터를 전송
 
 **내용 변경**
 - `th:text`
