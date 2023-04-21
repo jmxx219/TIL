@@ -82,6 +82,15 @@
     - `@ModelAttribute`의 `name` 생략 가능
       - 모델에 저장될 때 클래스명의 첫글자만 소문자로 변경해서 등록함
     - `@ModelAttribute` 자체 생략 가능
+- 상품 수정 폼 : `GET` - `/basic/items/{itemId}/edit`
+- 상품 수정 처리 : `POST` - `/basic/items/{itemId}/edit`
+  - `redirect:/...`
+    - 처리 후에 뷰 템플릿을 호출하지 않고 상품 상세 화면으로 이동하도록 리다이렉트를 호출함
+    - 컨트롤러에 매핑된 `@PathVariable`의 값은 `redirect`에도 사용 가능
+      - `redirect:/basic/items/{itemId}"`
+
+  > HTML Form 전송은 `PUT`, `PATCH`를 지원 X, `GET`, `POST`만 사용 가능  
+  >`PUT`, `PATCH`는 API 전송시에 사용함
 
 
 
