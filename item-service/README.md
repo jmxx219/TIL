@@ -35,11 +35,14 @@
 - `/resources/static` 폴더에 정적 리소스는 공개됨
   - 서비스를 운영할 때 공개할 필요가 없는 HTML을 넣지 않도록 주의
 
+
 <br/>
 
-## 상품 목록 - 타임리프
+## 상품 관리 기능
 
-### `BasicItemController`
+### 상품 목록
+
+**`BasicItemController`**
 - `@Controller` : 스프링빈 등록(`@Component`)
   - `ItemRepository`
     - `@Autowired`: 의존성 주입(생성자, setter, 필드)
@@ -48,8 +51,16 @@
   - 테스트용 데이터 추가
     - `@PostConstruct`: 빈의 의존관계가 모두 주입되고 나서 초기화 용도로 사용
 
+### 상품 상세
+
+
+
+
+<br/>
 
 ---
+
+<br/>
 
 # Thymeleaf
 
