@@ -26,6 +26,13 @@
 `/item-service`
 [README](https://github.com/jmxx219/Spring-Study/blob/main/item-service/README.md)
 
+### 6. Thymeleaf
+
+`/thymeleaf-basic`
+[README](https://github.com/jmxx219/Spring-Study/blob/main/thymeleaf-basic/README.md)
+
+
+
 <br>
 
 ---
