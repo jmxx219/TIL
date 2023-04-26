@@ -3,13 +3,18 @@
 ### 목차
 - [타임리프 특징](#타임리프-특징) <br/>
 - [타임 리프 기본 기능](#타임-리프-기본-기능)
-  * [기본 표현식](#기본-표현식)
   * [텍스트](#텍스트)
-  * [SpringEL](#SpringEL)
-  * [기본 객체](#기본-객체)
-  * [유틸리티 객체와 날짜](#유틸리티-객체와-날짜)
+  * [기본 표현식](#기본-표현식)
+    * [SpringEL](#SpringEL)
+    * [기본 객체](#기본-객체)
+    * [유틸리티 객체와 날짜](#유틸리티-객체와-날짜)
+    * [URL 링크](#URL-링크)
+    * [리터럴(Literals)](#리터럴(Literals))
+    * [연산](#연산)
+
+
   
-<br/>
+---
 
 ### 타임리프 특징
 
@@ -26,17 +31,6 @@
 ## 타임 리프 기본 기능
 
 **사용 선언** : `<html xmlns:th="http://www.thymeleaf.org">`
-
-### 기본 표현식
-- 간단한 표현 - 변수: `${...}`, 선택 변수: `*{...}`, 메시지: `#{...}`, 링크 URL: `@{...}`, 조각: `~{...}`
-- 리터럴 - 텍스트, 숫자, 불린(true, false), 널(null), 리터럴 토큰
-- 문자 연산 - 문자 합치기(`+`), 리터럴 대체(`|The name is ${name}|`)
-- 산술 연산 - `+`, `-`, `*`, `/`, `%`
-- 불린 연산 - `and`, `or`, `!`, `not`
-- 비교: `>`,`<`,`>=`,`<=` (gt,lt,ge,le)
-- 동등:  `==`, `!=` (eq, ne)
-- 조건 연산 - If-then: `(if) ? (then)`, If-then-else: `(if) ? (then) : (else)`, Default: `(value) ?: (defaultvalue)`
-- 특별한 토큰 -  No-Operation: `_`
 
 
 ### 텍스트
@@ -64,15 +58,30 @@ th:utext = Hello Spring! // Unescape
 **Escape**
 
 - HTML 문서는 `<`, `>` 같은 특수 문자를 기반으로 정의됨
-    - 뷰 템플릿으로 HTML 화면을 생성할 때 출력하는 데이터에 이러한 특수 문자가 있을 경우 주의해서 사용
+  - 뷰 템플릿으로 HTML 화면을 생성할 때 출력하는 데이터에 이러한 특수 문자가 있을 경우 주의해서 사용
 - **HTML 엔티티**
-    - 웹 브라우저는 `<`를 HTML 태그의 시작으로 인식하는데, 이때 `<`를 태그의 시작이 아닌 문자로 표현하는 방법
-    - `<` ➔ `&lt;`
-    - `>` ➔ `&gt;`
+  - 웹 브라우저는 `<`를 HTML 태그의 시작으로 인식하는데, 이때 `<`를 태그의 시작이 아닌 문자로 표현하는 방법
+  - `<` ➔ `&lt;`
+  - `>` ➔ `&gt;`
 - HTML에서 사용하는 특수 문자를 **HTML 엔티티**로 변경하는 것을 `Escape`라 함
-    - 타임리프가 제공하는 `th:text`와 `[[...]]`는 기본적으로 이스케이프를 제공
-        - **Unescape**: `th:utext`와 `[(...])]`
+  - 타임리프가 제공하는 `th:text`와 `[[...]]`는 기본적으로 이스케이프를 제공
+    - **Unescape**: `th:utext`와 `[(...])]`
 
+<br/>
+
+
+### 기본 표현식
+- 간단한 표현 - 변수: `${...}`, 선택 변수: `*{...}`, 메시지: `#{...}`, 링크 URL: `@{...}`, 조각: `~{...}`
+- 리터럴 - 텍스트, 숫자, 불린(true, false), 널(null), 리터럴 토큰
+- 문자 연산 - 문자 합치기(`+`), 리터럴 대체(`|The name is ${name}|`)
+- 산술 연산 - `+`, `-`, `*`, `/`, `%`
+- 불린 연산 - `and`, `or`, `!`, `not`
+- 비교: `>`,`<`,`>=`,`<=` (gt,lt,ge,le)
+- 동등:  `==`, `!=` (eq, ne)
+- 조건 연산 - If-then: `(if) ? (then)`, If-then-else: `(if) ? (then) : (else)`, Default: `(value) ?: (defaultvalue)`
+- 특별한 토큰 -  No-Operation: `_`
+
+<br/>
 
 ### SpringEL
 
@@ -98,6 +107,8 @@ th:utext = Hello Spring! // Unescape
         <p>처음 사람의 이름은 <span th:text="${first.username}"></span></p>
     </div>
     ```
+
+<br/>
   
 ### 기본 객체
 
@@ -134,5 +145,67 @@ th:utext = Hello Spring! // Unescape
 - [타임리프 유틸리티 객체](https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#expression-utility-objects)
 - [예시](https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#appendix-b-expression-utility-objects)
 
+<br/>
+
+### URL 링크
+
+`@{...}`: URL 생성
+- 단순 URL
+  - `@{/hello}` ➔ `/hello`
+- 쿼리 파라미터
+  - `@{/hello(param1=${param1}, param2=${param2})}` ➔ `/hello?param1=data1&param2=data2`
+  - `()` 부분은 쿼리 파라미터로 처리
+- 경로 변수
+  - `@{/hello/{param1}/{param2}(param1=${param1}, param2=${param2})}` ➔ `/hello/data1/data2`
+  - URL 경로상에 변수가 있으면 `()` 부분은 경로 변수로 처리
+- 경로 변수 + 쿼리 파라미터
+  - `@{/hello/{param1}(param1=${param1}, param2=${param2})}` ➔ `/hello/data1?param2=data2`
+  - 경로 변수와 일치하지 않으면 쿼리 파라미터로 자동 처리
+
+<br/>
+
+### 리터럴(Literals)
+
+- 소스 코드 상에서 고정된 값
+  - 문자: `'hello'`, 숫자: `10`, 불린: `true` `false`, null: `null`
+- 타임리프에서 문자 리터럴은 항상 `'`(작은 따옴표)로 감싸야 함
+  - `<span th:text="'hello'">`
+  - 공백없이 쭉 이어진다면 하나의 의미있는 토근으로 인지 ➔ 작은 따옴표 생략 가능
+    - `<span th:text="hello world!"></span>` ➔ 오류
+    - `<span th:text="'hello world!'"></span>` ➔ `'`로 감싸면 정상 동작
+- `|...|` 
+  - 리터럴 대체를 이용하면 편리하게 사용 가능
+    - `<span th:text="|hello ${data}|">`
+
+<br/>
+
+### 연산
+
+자바와 크게 다르지 않지만 HTML 엔티를 사용하는 부분만 주의
+
+- 산술 연산
+  - `<span th:text="10 + 2"></span>` ➔ `12`
+  - `<span th:text="10 % 2 == 0"></span>` ➔ `true`
+- 비교 연산
+  - HTML 엔티티 사용 주의
+  - `>` (gt), `<` (lt), `>=` (ge), `<=` (le), `!` (not), `==` (eq), `!=` (neq, ne)
+    - `1 &gt; 10` ➔ `1 > 10` ➔ `false`
+    - `1 gt 10` ➔ `1 gt 10` ➔ `false`
+    - `1 >= 10` ➔ `1 >= 10` ➔ `false`
+    - `1 ge 10` ➔ `1 ge 10` ➔ `false`
+    - `1 == 10` ➔ `1 == 10` ➔ `false`
+    - `1 != 10` ➔ `1 != 10` ➔ `true`
+- 조건식
+  - `(10 % 2 == 0)? '짝수':'홀수'` ➔ `짝수`
+- Elvis 연산자
+  - `data` 변수가 참이면 `data`를, 거짓이라면 `데이터가 없습니다.` 출력
+    - `${data}?: '데이터가 없습니다.'` ➔ `Spring!`
+    - `${nullData}?: '데이터가 없습니다.'` ➔ `데이터가 없습니다.`
+- No-Operation
+  - `_` 인 경우 마치 타임리프가 실행되지 않는 것처럼 동작
+    - HTML 내용을 그대로 사용
+        - `<span th:text="${data}?: _">데이터가 없습니다.</span>` = Spring!
+        - `<span th:text="${nullData}?: _">데이터가 없습니다.</span>` = 데이터가 없습니다.
 
 
+<br/>
