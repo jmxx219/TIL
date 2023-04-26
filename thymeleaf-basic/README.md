@@ -11,12 +11,15 @@
     * [URL 링크](#URL-링크)
     * [리터럴(Literals)](#리터럴(Literals))
     * [연산](#연산)
+  * [속성 값 설정](#속성-값-설정)
+  * [반복](#반복)
+  * [조건부 평가](#조건부-평가)
 
 
-  
 ---
 
-### 타임리프 특징
+## 타임리프 특징
+
 
 - **서버 사이드 HTML 렌더링(SSR)**
   - 백엔드 서버에서 HTML을 동적으로 렌더링하는 용도로 사용
@@ -207,5 +210,59 @@ th:utext = Hello Spring! // Unescape
         - `<span th:text="${data}?: _">데이터가 없습니다.</span>` = Spring!
         - `<span th:text="${nullData}?: _">데이터가 없습니다.</span>` = 데이터가 없습니다.
 
+<br/>
+
+### 속성 값 설정
+
+타임리프 태그 속성(Attribute)
+
+- `th:*`
+  - HTML 태그에 `th:*` 속성을 지정하여 기존 속성을 대체하고, 기존 속성이 없으면 새로 생성함
+    - 타임리프 렌더링 전 : `<input type="text" name="mock" th:name="userA" />`
+    - 타임리프 렌더링 후 : `<input type="text" name="userA" />`
+- 속성 추가
+  - `th:attrappend`: 속성 값의 뒤에 값을 추가
+    - 타임리프 렌더링 전 : `<input type="text" class="text" th:attrappend="class=' large'" />`
+    - 타임리프 렌더링 후 : `<input type="text" class="text large" />`
+  - `th:attrprepend`: 속성 값의 앞에 값을 추가
+  - `th:classappend`: class 속성에 추가
+- checked 처리
+  - HTML에서는 `checked` 속성의 값(`checked="false"`)과 상관없이 `checked` 속성이 있으면 체크 처리됨
+  - 타임리프의 `th:checked`은 값이 `false`인 경우 `checked` 속성 자체를 제거함
 
 <br/>
+
+### 반복
+
+`th:each`
+
+- 반복 기능
+  - `<tr th:each="user : ${users}">`
+    - 오른쪽 컬렉션 ${users}에서 값을 하나씩 꺼내 왼쪽 변수 `user`에 담아서 태그를 반복 실행함
+    - `java.util.Iterable`, `java.util.Enumeration`을 구현한 모든 객체를 반복에 사용 가능
+- 반복 상태 유지
+  - `<tr th:each="user, userStat : ${users}">`
+    - 반복의 두번째 파라미터를 설정해서 반복의 상태 확인 가능
+      - 두번째 파라미터를 생략해도 사용 가능. 지정한 변수명(`user`) + `Stat` ➔ `userStat`
+  - 기능
+    - `index` : 0부터 시작하는 값
+    - `count` : 1부터 시작하는 값
+    - `size` : 전체 사이즈
+    - `even`, `odd` : 홀수, 짝수 여부(`boolean`) 
+    - `first`, `last`: 처음, 마지막 여부(`boolean`) 
+    - `current` : 현재 객체
+    
+<br/>
+
+### 조건부 평가
+
+- `th:if`, `th:unless`(`if`의 반대)
+  - 타임리프는 해당 조건이 맞지 않으면 태그 자체를 렌더링하지 않음
+- `th:switch`, `th:case`
+  - `<td th:switch="${user.age}">`
+    - `<span th:case="10">10살</span>`
+    - `<span th:case="*">기타</span>`
+      - `*`은 만족하는 조건이 없을 때 사용하는 디폴트
+
+<br/>
+
