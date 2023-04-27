@@ -14,6 +14,9 @@
   * [속성 값 설정](#속성-값-설정)
   * [반복](#반복)
   * [조건부 평가](#조건부-평가)
+  * [주석](#주석)
+  * [블럭](#블럭)
+  * [자바스크립트 인라인](#자바스크립트-인라인)
 
 
 ---
@@ -266,3 +269,123 @@ th:utext = Hello Spring! // Unescape
 
 <br/>
 
+### 주석
+
+
+- 표준 HTML 주석
+  - `<!--  ...  -->`
+  - 자바스크립트의 표준 HTML 주석은 타임리프가 렌더링하지 않고 그대로 남겨둠
+- 타임리프 파서 주석
+  - `<!--/*  ...  */-->`
+  - `<!--/*-->  ... <!--*/-->` ➔ 여러줄 주석 처리
+  - 타임리프 렌더링에서 주석부분을 제거
+  - HTML 파일을 웹 브라우저에서 열었을 때는 남겨짐
+- 타임리프 프로토타입 주석
+  - `<!--/*/ ... /*/-->`
+  - HTML 파일을 웹 브라우저에서 그대로 열어보면 HTML 주석이기 때문에 이 부분을 웹 브라우저가 렌더링하지 않음 ➔ 주석 처리되어 남겨짐
+  - 타임리프 렌더링을 거치면 이 부분이 정상 렌더링됨
+    - 타임리프로 렌더링을 한 경우에만 보이는 기능
+```html
+<h1>1. 표준 HTML 주석</h1>
+<!-- 
+<span th:text="${data}">html data</span> 
+-->
+
+<h1>2. 타임리프 파서 주석</h1>
+<!--/* [[${data}]] */-->
+<!--/*-->
+<span th:text="${data}">html data</span>
+<!--*/-->
+
+<h1>3. 타임리프 프로토타입 주석</h1>
+<!--/*/
+<span th:text="${data}">html data</span>
+/*/-->
+```
+- 타임리프 렌더링 결과  
+  ```
+  1. 표준 HTML 주석
+  2. 타임리프 파서 주석
+  3. 타임리프 프로토타입 주석
+  Spring!
+  ```
+- HTML 파일을 웹 브라우저로 열었을 때 결과
+  ```
+  1. 표준 HTML 주석
+  2. 타임리프 파서 주석
+  html data
+  3. 타임리프 프로토타입 주석
+  ```
+
+<br/>
+
+### 블록
+
+`<th:block>`
+
+- HTML 태그가 아닌 타임리프의 유일한 자체 태그
+  - 렌더링시에는 제거됨
+  - 웹 브라우저에서는 태그의 반복 결과만 남음
+- 타임리프의 특성상 HTML 태그안에 속성으로 기능을 정의해서 사용
+  - 여러 개의 태그를 반복문으로 돌려야 하는 상황에서 사용
+
+```html
+<th:block th:each="user : ${users}">
+  <div>
+    사용자 이름1 <span th:text="${user.username}"></span>
+    사용자 나이1 <span th:text="${user.age}"></span> </div>
+  <div>
+    요약 <span th:text="${user.username} + ' / ' + ${user.age}"></span>
+  </div>
+</th:block>
+```
+
+<br/>
+
+### 자바스크립트 인라인
+
+`<script th:inline="javascript">` : 자바스크립트에서 타임리프를 편리하게 사용할 수 있는 기능 제공
+
+- 텍스트 렌더링
+  - `var username = [[${user.username}]];`
+    - 인라인 사용 전 ➔ `var username = userA;`
+      - 변수 이름이 그대로 남아있기 때문에 변수명으로 인식되어서 오류가 발생함
+      - 숫자의 경우에는 `"`가 필요 없기 때문에 정상 렌더링됨
+    - 인라인 사용 후 ➔ `var username = "userA";`
+      - 문자 타입인 경우 `"`를 포함해줌
+      - 자바스크립트 상에서 문제가 될 수 있는 문자가 포함되어 있으면 이스케이프 처리를 해줌
+        - `"` ➔ `\"`
+- 자바스크립트 내추럴 템플릿
+  - 타임리프는 HTML 파일을 직접 열어도 동작하는 내추럴 템플릿 기능을 제공함
+  - 자바스크립트 인라인을 이용하면 주석을 활용해서 해당 기능 사용 가능
+  - `var username2 = /*[[${user.username}]]*/ "test username";` 
+    - 인라인 사용 전 ➔ `var username2 = /*userA*/ "test username";`
+      - 순수하게 그대로 해석되어 내추럴 템플릿 기능이 동작하지 않고, 렌더링 내용이 주석처리됨
+    - 인라인 사용 후 ➔ `var username2 = "userA";`
+      - 주석 부분이 제거되고 기능이 동작함
+- 객체
+  - 객체를 JSON으로 자동 변환함
+  - `var user = [[${user}]];`
+    - 인라인 사용 전 ➔ `var user = BasicController.User(username=userA, age=10);`
+      - 객체의 `toString()` 함수가 호출된 값이 들어감
+    - 인라인 사용 후 ➔ `var user = {"username":"userA","age":10};`
+
+`th:each`
+- 특정 요소를 for문처럼 반복처리하는 기능으로, 자바스크립트 인라인은 each를 지원함
+  ```html
+  <script th:inline="javascript">
+    [# th:each="user, stat : ${users}"]
+    var user[[${stat.count}]] = [[${user}]];
+    [/]
+  </script>
+  ```
+  결과
+  ```
+  <script>
+      var user1 = {"username":"userA","age":10};
+      var user2 = {"username":"userB","age":20};
+      var user3 = {"username":"userC","age":30};
+  </script>
+  ```
+
+<br/>
