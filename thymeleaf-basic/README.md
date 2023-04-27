@@ -17,6 +17,8 @@
   * [주석](#주석)
   * [블럭](#블럭)
   * [자바스크립트 인라인](#자바스크립트-인라인)
+  * [템플릿 조각](#템플릿-조각)
+  * [템플릿 레이아웃](#템플릿-레잉아웃)
 
 
 ---
@@ -389,3 +391,119 @@ th:utext = Hello Spring! // Unescape
   ```
 
 <br/>
+
+### 템플릿 조각
+
+> 웹 페이지를 개발할 때 공통 영역들을 변경해야 할 경우, 모든 페이지를 다 수정해야 하기 때문에 비효율적임
+> 해당 문제를 해결하기 위해 타임리프는 템플릿 조각과 레이아웃 기능을 지원함
+
+`th:fragment`
+- 해당 태그는 다른 곳에 포함되는 코드 조각으로 이해
+  ```html
+  <footer th:fragment="copy"> 
+    푸터 자리 입니다.
+  </footer>
+  
+  <footer th:fragment="copyParam (param1, param2)">
+    <p>파라미터 자리 입니다.</p>
+    <p th:text="${param1}"></p> 
+    <p th:text="${param2}"></p>
+  </footer>
+  ```
+
+`th:insert`: 현재 태그 내부에 추가
+- 부분 포함
+  - `<div th:insert="~{template/fragment/footer :: copy}"></div>`
+    - `template/fragment/footer :: copy`
+      - `template/fragment/footer.html` 템플릿에 있는 `th:fragment="copy"`라는 부분을 템플릿 조각으로 가져와서 사용한다는 의미
+    ````html
+    <h2>부분 포함 insert</h2>
+    <div th:insert="~{template/fragment/footer :: copy}"></div>
+    ````
+    ```html
+    <h2>부분 포함 insert</h2>
+    <div>
+      <footer>
+        푸터 자리 입니다.
+      </footer>
+    </div>
+    ```
+
+`th:replace`: 현재 태그를 대체
+- 부분 포함
+  - `<div th:replace="~{template/fragment/footer :: copy}"></div>`
+    ````html
+    <h2>부분 포함 replace</h2>
+    <div th:replace="~{template/fragment/footer :: copy}"></div>
+    ````
+    ```html
+    <h2>부분 포함 replace</h2>
+    <footer>
+      푸터 자리 입니다.
+    </footer>
+    ```
+- 부분 포함 단순식
+  - `div th:replace="template/fragment/footer :: copy"></div>`
+    - `~{...} `를 사용하는 것이 원칙이지만, 템플릿 조각을 사용하는 코드가 단순하면 생략 가능
+- 파라미터 사용
+  - `<div th:replace="~{template/fragment/footer :: copyParam ('데이터1', '데이터2')}"></
+div>`
+    - 파라미터를 전달해서 동적으로 조각을 렌더링할 수 있음
+    ````html
+    <h2>파라미터 사용</h2>
+    <div th:replace="~{template/fragment/footer :: copyParam ('데이터1', '데이터 2')}"></div>
+    ````
+    ```html
+    <h2>파라미터 사용</h2>
+    <footer>
+        <p>파라미터 자리 입니다.</p> 
+        <p>데이터1</p>
+        <p>데이터2</p>
+    </footer>
+    ```
+  
+<br/>
+
+### 템플릿 레이아웃
+
+코드 조각을 레이아웃에 넘겨서 사용
+- 공통 정보들은 한 곳에 모아두고 사용하지만, 각 페이지마다 필요한 정보를 더 추가해서 이용하고 싶을 때 사용
+- 레이아웃 개념을 두고, 레이아웃에 필요한 코드 조각을 전달해서 완성
+- `base.html`
+  ```html
+  <html xmlns:th="http://www.thymeleaf.org">
+  <head th:fragment="common_header(title,links)">
+  
+    <title th:replace="${title}">레이아웃 타이틀</title>
+  
+    <!-- 공통 -->
+    <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/awesomeapp.css}">
+    <link rel="shortcut icon" th:href="@{/images/favicon.ico}">
+    <script type="text/javascript" th:src="@{/sh/scripts/codebase.js}"></script>
+  
+    <!-- 추가 -->
+    <th:block th:replace="${links}" />
+  </head>
+  ```
+    - 타이틀이 전달한 `<title>` 태그 부분으로 교체
+    - 공통 부분은 유지되고, 추가 부분에 전달한 `<links>`태그들이 포함됨
+
+- `layoutMain.html`
+  ````html
+  <!DOCTYPE html>
+  <html xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="template/layout/base :: common_header(~{::title},~{::link})">
+      <title>메인 타이틀</title>
+      <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+      <link rel="stylesheet" th:href="@{/themes/smoothness/jquery-ui.css}">
+  </head>
+  <body>
+  메인 컨텐츠
+  </body>
+  </html>
+  ````
+    - `common_header(~{::title},~{::link})`
+      - `::title`은 현재 페이지의 title 태그들을 전달
+      - `::link`는 현재 페이지의 link 태그들을 전달
+- `<head>`뿐만 아니라 `<html>`전체에도 적용 가능
+
