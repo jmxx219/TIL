@@ -3,7 +3,6 @@ package hello.itemservice.web.form;
 import hello.itemservice.domain.item.Item;
 import hello.itemservice.domain.item.ItemRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.Banner.Mode;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +32,7 @@ public class FormItemController {
     }
 
     @GetMapping("/add")
-    public String addForm(Model model) {
-        model.addAttribute("item", new Item());
+    public String addForm() {
         return "form/addForm";
     }
 
