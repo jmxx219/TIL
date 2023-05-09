@@ -32,11 +32,6 @@
 [README](https://github.com/jmxx219/Spring-Study/blob/main/thymeleaf-basic/README.md)
 
 
-### 7. Thymeleaf - Spring 통합
-
-`/form`
-[README](https://github.com/jmxx219/Spring-Study/blob/main/form/README.md)
-
 <br>
 
 ---
