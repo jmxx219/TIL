@@ -1,7 +1,24 @@
 # Thymeleaf - Spring 통합과 폼
 
 > 타임리프는 스프링과 통합을 위한 다양한 기능을 제공한다. ([스프링 통합 메뉴얼](https://www.thymeleaf.org/doc/tutorials/3.0/thymeleafspring.html))  
-> 해당 기능을 이용하여 [상품 관리 서비스 개발](https://github.com/jmxx219/Spring-Study/blob/main/item-service/README.md) 프로젝트를 개선해보자
+> 해당 기능을 이용하여 [상품 관리 서비스 개발](https://github.com/jmxx219/Spring-Study/blob/main/item-service/README.md) 프로젝트를 개선해보자  
+
+
+**요구사항 추가**
+- 판매여부
+  - 판매 오픈 여부
+  - 체크 박스로 선택
+- 등록 지역
+  - 서울, 부산, 제주
+  - 체크 박스로 다중 선택
+- 상품 종류
+  - 도서, 식품, 기타
+  - 라디오 버튼 하나 선택
+- 배송 방식
+  - 빠른 배송, 일반 배송, 느린 배송
+  - 셀렉트 박스로 하나 선택
+
+
 
 ### 목차
 - [입력 폼 처리](#입력-폼-처리) <br/>
