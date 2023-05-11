@@ -8,6 +8,7 @@
 - [입력 폼 처리](#입력-폼-처리)
 - [체크 박스](#체크-박스)
 - [라디오 버튼](#라디오-버튼)
+- [셀렉트 박스](#셀렉트-박스)
 
 
 <br/>
@@ -126,3 +127,22 @@
   - `<div th:each="type : ${T(hello.itemservice.domain.item.ItemType).values()}">`
   - 모델에 ENUM을 담아서 전달하지 않고, 타임리프로 자바 객체에 직접 접근 가능
   - ENUM의 패키지의 위치가 변경될 때, 자바 컴파일러가 타임리프까지 컴파일 오류를 잡을 수 없어 권장하지는 않음
+
+<br/>
+
+## 셀렉트 박스
+
+- 여러 선택지 중에 하나를 선택
+- 자바 객체 활용
+```java
+  @ModelAttribute("deliveryCodes")
+  public List<DeliveryCode> deliveryCodes() {
+      List<DeliveryCode> deliveryCodes = new ArrayList<>();
+      deliveryCodes.add(new DeliveryCode("FAST", "빠른 배송"));
+      deliveryCodes.add(new DeliveryCode("NORMAL", "일반 배송"));
+      deliveryCodes.add(new DeliveryCode("SLOW", "느린 배송"));
+      return deliveryCodes;
+  }
+  ```
+
+<br/>
