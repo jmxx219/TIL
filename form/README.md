@@ -4,6 +4,14 @@
 > 해당 기능을 이용하여 [상품 관리 서비스 개발](https://github.com/jmxx219/Spring-Study/blob/main/item-service/README.md) 프로젝트를 개선해보자  
 
 
+### 목차
+- [입력 폼 처리](#입력-폼-처리)
+- [체크 박스](#체크-박스)
+- [라디오 버튼](#라디오-버튼)
+
+
+<br/>
+
 **요구사항 추가**
 - 판매여부
   - 판매 오픈 여부
@@ -17,12 +25,6 @@
 - 배송 방식
   - 빠른 배송, 일반 배송, 느린 배송
   - 셀렉트 박스로 하나 선택
-
-
-
-### 목차
-- [입력 폼 처리](#입력-폼-처리)
-- [체크 박스](#체크-박스)
 
 
 ---
@@ -104,3 +106,23 @@
   - `th:for="${#ids.prev('regions')}"`
     - `id`가 타임리프에 의해 동적으로 만들어지기 때문에 `<label for="id 값">`으로 `label`의 대상이 되는 `id` 값을 지정하는 것은 안됨
     - 타임리프는 `ids.prev(...)`, `ids.next(...)`을 제공하여 동적으로 생성되는 id 값을 사용할 수 있게 함
+
+<br/>
+
+## 라디오 버튼
+
+- 여러 선택지 중에 하나를 선택
+  - 체크박스와 다르게 라디오 버튼은 한 번 선택하면, 항상 하나를 선택하도록 되어있음
+    - 별도의 히든 필드 사용 X
+- ENUM 활용
+  ```java
+  @ModelAttribute("itemTypes")
+  public ItemType[] itemTypes() {
+      return ItemType.values();
+  }
+  ```
+  - `ItemType.values()`: ENUM의 모든 정보를 배열로 반환
+- 타임리프에서 ENUM 직접 사용
+  - `<div th:each="type : ${T(hello.itemservice.domain.item.ItemType).values()}">`
+  - 모델에 ENUM을 담아서 전달하지 않고, 타임리프로 자바 객체에 직접 접근 가능
+  - ENUM의 패키지의 위치가 변경될 때, 자바 컴파일러가 타임리프까지 컴파일 오류를 잡을 수 없어 권장하지는 않음
