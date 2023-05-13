@@ -5,6 +5,7 @@
 - [스프링 메시지 소스](#스프링-메시지-소스)
   - [설정](#설정)
   - [사용](#사용)
+- [웹 애플리케이션에 메시지 적용](#웹-애플리케이션에-메시지-적용)
 
 
 <br/>
@@ -95,11 +96,22 @@ public interface MessageSource {
   - 국제화 파일 선택
   - 구체적인 것에서 디폴트 순으로 탐색
     - `Locale`이 `en_US`의 경우,  `messages_en_US` ➔ `messages_en` ➔ `messages`
-  - `locale`정보가 없는 경우
-    - `Locale.getDefault()`을 호출해서 시스템의 기본 로케일을 사용
-      - `locale = null` 인 경우, 시스템 기본 `locale`이 `ko_KR`이므로 `messages_ko.properties` 조회
-        시도 ➔ 조회 실패 ➔ `messages.properties` 조회
+  - `locale`정보가 없는 경우, `Locale.getDefault()`을 호출해서 시스템의 기본 로케일을 사용
+    - `locale = null` 인 경우, 시스템 기본 `locale`이 `ko_KR`이므로 `messages_ko.properties` 조회
+      시도 ➔ 조회 실패 ➔ `messages.properties` 조회
 
+      
+<br/>
 
+## 웹 애플리케이션에 메시지 적용
+
+- `messages.properties`에 메시지 등록
+- 타임리프 메시지 적용
+  - `#{...}`: 타임리프 메시지 표현식
+    - 스프링의 메시지를 편하게 조회 가능
+  - 파라미터 사용
+    - `hello.name=안녕 {0}`
+    - `#{hello.name(${item.itemName})}`
+    
 
 <br/>
