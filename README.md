@@ -37,6 +37,13 @@
 `/form`
 [README](https://github.com/jmxx219/Spring-Study/blob/main/form/README.md)
 
+
+
+### 8. 메시지, 국제화
+
+`/message`
+[README](https://github.com/jmxx219/Spring-Study/blob/main/message/README.md)
+
 <br>
 
 ---
