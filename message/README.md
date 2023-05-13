@@ -5,7 +5,9 @@
 - [스프링 메시지 소스](#스프링-메시지-소스)
   - [설정](#설정)
   - [사용](#사용)
-- [웹 애플리케이션에 메시지 적용](#웹-애플리케이션에-메시지-적용)
+- [웹 애플리케이션 적용](#웹-애플리케이션-적용)
+  - [메시지](#메시지)
+  - [국제화](#국제화)
 
 
 <br/>
@@ -103,7 +105,9 @@ public interface MessageSource {
       
 <br/>
 
-## 웹 애플리케이션에 메시지 적용
+## 웹 애플리케이션 적용
+
+### 메시지
 
 - `messages.properties`에 메시지 등록
 - 타임리프 메시지 적용
@@ -114,4 +118,19 @@ public interface MessageSource {
     - `#{hello.name(${item.itemName})}`
     
 
-<br/>
+### 국제화
+
+- `messages_en.properties` 파일 추가
+- 웹 브라우저에서 확인
+  - 언어 설정 값 변경: `Chrome -> 설정 -> 언어 -> 우선 순위 변경(Accept-Language)`
+    - `(Accept-Language)`: 클라이언트가 서버에 기대하는 언어 정보를 담아서 요청하는 HTTP 요청 헤더
+
+**스프링의 국제화 메시지 선택**
+- `Locale` 정보를 바탕으로 언어 선택
+- 스프링은 언어 선택시 기본으로 `Accept-Language` 헤더의 값을 사용
+
+**LocaleResolver**
+- 스프링은 `Locale` 선택 방식을 변경할 수 있도록 `LocaleResolver` 인터페이스 제공
+- 스프링 부트는 기본으로 `Accept-Language`를 활용하는 `AcceptHeaderLocaleResolver`를 사용
+- Locale 선택 방식 변경
+  - `LocaleResolver`의 구현체를 변경해서 쿠키나 세션 기반의 `Locale` 선택 기능을 사용
