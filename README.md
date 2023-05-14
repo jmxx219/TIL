@@ -44,6 +44,13 @@
 `/message`
 [README](https://github.com/jmxx219/Spring-Study/blob/main/message/README.md)
 
+
+### 9. Validation
+
+`/validation`
+[README](https://github.com/jmxx219/Spring-Study/blob/main/validation/README.md)
+
+
 <br>
 
 ---
