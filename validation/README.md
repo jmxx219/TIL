@@ -4,6 +4,7 @@
 
 ### 목차
 - [검증 직접 처리](#검증-직접-처리)
+- [BindingResult](#BindingResult)
 
 <br/>
 
@@ -87,3 +88,46 @@
   - `Integer`인 `price`에 문자를 입력할 경우, 타입이 달라 문자를 보관할 수 없음
   - 문자는 바인딩이 불가능 ➔ 고객이 입력한 문자는 사라짐 ➔ 본인이 어떤 내용을 입력해서 오류가 발생했는지 알기 어려움
 - 고객이 입력한 값도 어딘가에 별도로 관리 되어야함
+
+
+<br/>
+
+## BindingResult
+
+- 스프링이 제공하는 검증 오류를 보관하는 객체
+  - `BindingResult`의 파라미터의 위치는 검증할 대상(`@ModelAttribute` 객체) 바로 뒤에 와야함
+  - `@ModelAttribute`에 바인딩 시 타입 오류가 발생할 경우
+    - `BindingResult`가 없으면 ➔ 400 오류가 발생, 컨트롤러 호출 X, 오류 페이지로 이동
+    - `BindingResult`가 있으면 ➔ 오류 정보(`FieldError`)를 `BindingResult`에 보관, 컨트롤러 정상 호출
+  - `BindingResult`는 `Model`에 자동 포함됨
+  - `addError()`로 오류를 보관함
+    - `bindingResult.addError(new FieldError("item", "itemName", "상품 이름은 필수입니다."))`
+- **FieldError**
+  - 필드에 오류가 있을 때, 해당 객체를 생성해서 `BindingResult`에 담아둠
+  - `FieldError(String objectName, String field, String defaultMessage)`
+    - `objectName`: @ModelAttribute 이름
+    - `field`: 오류가 발생한 필드 이름
+    - `defaultMessage`: 오류 기본 메시지
+- **ObjectError**
+  - 특정 필드를 넘어서는 오류가 있을 때, 해당 객체를 생성해서 `BindingResult`에 담아둠
+    - `ObjectError(String objectName, String defaultMessage)`
+
+**BindingResult에 검증 오류를 적용하는 방법**
+1. `@ModelAttribute`의 객체에 타입 오류 등으로 바인딩이 실패하는 경우, 스프링이 `FieldError`를 생성해서 `BindingResult`에 넣어줌
+2. 개발자가 직접 적용
+3. `Validator` 사용
+
+**타임리프 스프링 검증 오류 통합 기능**
+- 타임리프는 스프링의 `BindingResult`를 활용하여 편리하게 검증 오류를 표현하도록 기능을 제공함
+  - `#fields`: `BindingResult`가 제공하는 검증 오류에 접근 
+  - `th:errors`: 해당 필드에 오류가 있는 경우에 태그를 출력(`th:if`의 편의 버전)
+  - `th:errorclass`: `th:field`에서 지정한 필드에 오류가 있으면 `class` 정보를 추가함
+- 글로벌 오류 처리
+  - `th:if="${#fields.hasGlobalErrors()}"`
+  - `th:each="err : ${#fields.globalErrors()}"`
+- 필드 오류 처리
+  - `th:errorclass="field-error"`
+  - `th:errors="*{itemName}"`
+
+**🚨 문제점**
+- 오류가 발생하는 경우, 고객이 입력한 내용이 모두 사라짐
