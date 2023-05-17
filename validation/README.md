@@ -6,6 +6,7 @@
 - [검증 직접 처리](#검증-직접-처리)
 - [BindingResult](#BindingResult)
 - [FieldError, ObjectError](#FieldError,-ObjectError)
+- [오류 코드와 메시지 처리](#오류-코드와-메시지-처리)
 
 <br/>
 
@@ -156,3 +157,51 @@
   - 타입 오류로 바인딩에 실패하면 스프링은 `FieldError`를 생성하여 사용자가 입력한 값을 넣어둠
   - 해당 오류를 `BindingResult`에 담아서 컨트롤러를 호출함
   - 타입 오류 같은 바인딩 실패에도 사용자의 오류 메시지를 정상 출력할 수 있음
+
+<br/>
+
+## 오류 코드와 메시지 처리
+
+**1. `errors.properties`**
+- 오류 메시지를 별도로 관리
+- `FieldError`의 `codes`에 오류 메시지 코드를 지정하고, `arguments`로 메시지 매개변수 값을 전달함
+
+**2. `BindingResult`**
+- 컨트롤러에서 `BindingResult`는 검증해야 할 객체 `target` 바로 다음에 위치함
+  - `BindingResult`는 검증해야 할 `target`에 대해 이미 알고 있음
+  - `target`에 대한 정보 불필요
+- `rejectValue()`, `reject()`
+  - `FieldError`와 `ObjectError`를 직접 생성하지 않고 검증 에러를 다룰 수 있음
+  - `rejectValue(@Nullable String field, String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage)`
+    - `field` : 오류 필드명 
+    - `errorCode` : 오류 코드(메시지에 등록된 코드 X, `messageResolver`를 위한 오류 코드)
+    - `errorArgs` : 오류 메시지에서 매개변수를 치환하기 위한 값 
+    - `defaultMessage` : 오류 메시지를 찾을 수 없을 때 사용하는 기본 메시지
+
+**3. 오류 코드**
+- 메시지 우선순위(단계)
+  - 메시지를 단순하게 만들면 범용성이 좋아 여러 곳에서 사용 가능, but 세밀하게 작성하기 어려움
+  - 너무 자세하게 만들면 범용성이 떨어짐
+  - 따라서 범용성으로 사용하다가 세밀하게 작성해야 하는 경우에만 세밀하게 적용되도록 메시지에 단계를 둠
+- `MessageCodesResolver`
+  - 인퍼페이스로, 검증 오류 코드로 메시지 코드를 생성함
+  - `DefaultMessageCodesResolver`가 기본 구현체
+    - 기본 메시지 생성 규칙
+      - 객체 오류: `code + "." + object name` ➔ `code`
+      - 필드 오류: `code + "." + object name + "." + field` ➔ `code + "." + field` ➔ `code + "." + field type` ➔`code`
+
+**4. 스프링이 직접 만든 오류 메시지 처리**
+- 개발자가 직접 설정한 오류 코드 ➔ `rejectValue()` 직접 호출
+- 스프링이 직접 검증 오류에 추가한 경우(주로 타입 정보 불일치)
+  - `typeMismatch`: 스프링은 타입 오류 발생 시, 해당 오류 코드를 사용
+  - 메시지에 `typeMismatch`를 이용하여 메시지 코드를 추가해서 사용
+    - `typeMismatch.java.lang.Integer=숫자를 입력해주세요.`
+  
+**동작 방식**
+
+1. `rejectValue()`, `reject()` 호출
+2. `MessageCodesResolver`를 통해 검증 오류 코드로 메시지 코드들 생성
+3. `FieldError`, `ObjectError`를 생성하면서 메시지 코드들을 보관
+   - 생성자를 보면, 여러 개의 오류 코드를 가질 수 있음
+4. `th:erros`에서 메시지 코드들로 메시지를 순서대로 찾고, 노출
+
