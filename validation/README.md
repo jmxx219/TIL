@@ -5,6 +5,7 @@
 ### 목차
 - [검증 직접 처리](#검증-직접-처리)
 - [BindingResult](#BindingResult)
+- [FieldError, ObjectError](#FieldError,-ObjectError)
 
 <br/>
 
@@ -131,3 +132,27 @@
 
 **🚨 문제점**
 - 오류가 발생하는 경우, 고객이 입력한 내용이 모두 사라짐
+
+<br/>
+
+
+## FieldError, ObjectError
+
+- `FieldError`와 `ObjectError` 두 가지 생성자를 제공함
+  - `FieldError(String objectName, String field, @Nullable Object rejectedValue, boolean bindingFailure, @Nullable String[] codes, @Nullable Object[] arguments, @Nullable String defaultMessage)`
+    - `rejectedValue`: 사용자가 입력한 값(거절된 값)
+    - `bindingFailure`: 타입 오류 같은 바인딩 실패인지, 검증 실패인지 구분 값 
+    - `codes`: 메시지 코드 
+    - `arguments`: 메시지에서 사용하는 인자 
+
+**오류 발생 시, 사용자 입력 값을 유지**
+- 사용자의 입력 데이터가 컨트톨러의 `@ModelAttribute`에 바인딩되는 시점에 오류 발생 시, 모델 객체에 사용자 입력 값을 유지하기 어려움
+- 오류가 발생한 경우, 사용자 입력 값을 보관하는 별도의 방법 필요
+  - 보관한 사용자 입력 값을 검증 오류 발생 시 화면에 다시 출력
+- `FieldError`의 `rejectedValue`: 오류 발생 시, 사용자 입력 값을 저장하는 필드
+- 타임리프의 사용자 입력 값 유지
+  - `th:field`는 보통 모델 객체의 값을 사용하지만, 오류가 발생하면 `FieldError`에서 보관한 값을 사용함
+- 스프링의 바인딩 오류 처리
+  - 타입 오류로 바인딩에 실패하면 스프링은 `FieldError`를 생성하여 사용자가 입력한 값을 넣어둠
+  - 해당 오류를 `BindingResult`에 담아서 컨트롤러를 호출함
+  - 타입 오류 같은 바인딩 실패에도 사용자의 오류 메시지를 정상 출력할 수 있음
