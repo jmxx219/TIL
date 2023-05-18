@@ -5,8 +5,9 @@
 ### 목차
 - [검증 직접 처리](#검증-직접-처리)
 - [BindingResult](#BindingResult)
-- [FieldError, ObjectError](#FieldError,-ObjectError)
+- [FieldError와 ObjectError](#FieldError와-ObjectError)
 - [오류 코드와 메시지 처리](#오류-코드와-메시지-처리)
+- [Validator](#Validator)
 
 <br/>
 
@@ -137,7 +138,7 @@
 <br/>
 
 
-## FieldError, ObjectError
+## FieldError와 ObjectError
 
 - `FieldError`와 `ObjectError` 두 가지 생성자를 제공함
   - `FieldError(String objectName, String field, @Nullable Object rejectedValue, boolean bindingFailure, @Nullable String[] codes, @Nullable Object[] arguments, @Nullable String defaultMessage)`
@@ -205,3 +206,45 @@
    - 생성자를 보면, 여러 개의 오류 코드를 가질 수 있음
 4. `th:erros`에서 메시지 코드들로 메시지를 순서대로 찾고, 노출
 
+<br/>
+
+
+## Validator
+
+- 컨트롤러에서 검증 로직이 차지하는 부분이 큼 ➔ 검증 로직 별도 분리
+  - 별도의 클래스로 역할을 분리
+  - 분리한 검증 로직 재사용 가능
+- `Validator` 인터페이스
+  - 스프링에서 검증 기능을 체계적으로 도입하기 위해 제공
+  ```java
+  public interface Validator {
+      boolean supports(Class<?> clazz);
+      void validate(Object target, Errors errors);
+  }
+  ```
+    - `supports()`: 해당 검증기를 지원하는 여부 확인
+    - `validate()`: 검증 대상 객체(`target`)와 `BindingResult`(`Errors`)
+
+**Validator 이용**
+- `Validator` 직접 호출
+  - `ItemValidator`를 스프링 빈으로 주입받아서 직접 호출
+    - `itemValidator.validate(item, bindingResult)`
+- `WebDataBinder`
+  - 스프링의 파라미터 바인딩의 역할 및 검증 기능을 내부에 포함함
+  ```java
+  @InitBinder
+  public void init(WebDataBinder dataBinder) {
+      dataBinder.addValidators(itemValidator);
+  }
+  ```
+  - `WebDataBinder`에 검증기를 추가 ➔ 해당 컨트롤러에서 검증기를 자동 적용 가능
+    - `@InitBinder`: 해당 컨트롤러에만 영향을 줌
+    - 글로벌 설정으로 모든 컨트롤러에 적용할 수도 있음
+  - `@Validated` 적용
+    - 검증기를 실행하라는 애노테이션으로, `WebDataBinder`에 등록한 검증기를 찾아서 실행
+      - `supports()` 메소드를 이용하여 여러 검증기 중에 실행되어야 할 검증기를 찾음 
+    - `public String addItemV6(@Validated @ModelAttribute Item item, ...) { }`
+      - `Validator`를 직접 호출하는 부분이 사라지고, 검증 대상 앞에 `@Validated`가 붙음
+    - 검증 시, `@Validated`와 `@Valid` 둘 다 사용 가능
+      - `@Validated`: 스프링 전용 검증 애노테이션
+      - `@Valid`: 자바 표준 검증 애노테이션(`build.gradle` 의존관계 추가가 필요)
