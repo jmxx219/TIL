@@ -11,6 +11,7 @@
 - [Bean Validation](#Bean-Validation)
   - [소개](#소개)
   - [직접 사용](#직접-사용)
+  - [스프링 적용](#스프링-적용)
 
 <br/>
 
@@ -281,3 +282,19 @@
     - 검증 대상(`Item`)을 직접 검증기에 넣고 결과를 받음
     - `ConstraintViolation`이라는 검증 오류가 담김
     - 검증 오류가 발생한 객체, 필드, 메시지 정보 등 다양한 정보 확인 가능
+
+### 스프링 적용
+
+- 스프링 부트가 `spring-boot-starter-validation` 라이브러리를 넣으면 자동으로 Bean Validator를 인지하고 스프링에 통합됨
+- 스프링 부트는 `LocalValidatorFactoryBean`을 자동으로 글로벌 Validator로 등록함
+  - `@Valid` 또는 `@Validated`만 적용하면, 해당 Validator가 `@NotNull`과 같은 애노테이션을 보고 검증을 수행함
+    - 검증 오류가 발생할 경우, `FieldError`, `ObjectError`를 생성해서 `BindingResult`에 넣어줌
+
+**검증 순서**
+1. `@ModelAttribute` 각각의 필드에 타입 변환 시도
+   1. 성공하면 다음으로
+   2. 실패하면 `typeMismatch`로 `FieldError` 추가
+2. Validator 적용
+   - 바인딩에 성공한 필드만 Bean Validation 적용
+
+### 에러 코드
