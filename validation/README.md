@@ -8,6 +8,9 @@
 - [FieldError와 ObjectError](#FieldError와-ObjectError)
 - [오류 코드와 메시지 처리](#오류-코드와-메시지-처리)
 - [Validator](#Validator)
+- [Bean Validation](#Bean-Validation)
+  - [소개](#소개)
+  - [직접 사용](#직접-사용)
 
 <br/>
 
@@ -248,3 +251,33 @@
     - 검증 시, `@Validated`와 `@Valid` 둘 다 사용 가능
       - `@Validated`: 스프링 전용 검증 애노테이션
       - `@Valid`: 자바 표준 검증 애노테이션(`build.gradle` 의존관계 추가가 필요)
+
+<br/>
+
+## Bean Validation
+
+### 소개
+- 검증 로직을 모든 프로젝트에 적용할 수 있게 공통화하고, 표준화한 것
+- 애노테이션 하나도 검증 로직을 매우 편리하게 적용할 수 있음
+- 특정한 구현체가 아닌 검증 애노테이션과 여러 인터페이스의 모음
+  - `Hibernate Validator`: Bean Validation을 구현하여 일반적으로 사용하는 구현체
+
+### 직접 사용
+
+- 의존관계 추가
+  - `implementation 'org.springframework.boot:spring-boot-starter-validation'`
+- Bean Validation 애노테이션 적용
+  - `@NotBlank`: 빈값 + 공백만 있는 경우 허용하지 X
+  - `@NotNull`: `null`을 허용하지 X
+  - `@Range(min = 1000, max = 1000000)`: 해당 범위 값만 허용
+  - `@Max(9999)`: 최대 해당 값까지만 허용
+- 검증기 생성
+  ```java
+  ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+  Validator validator = factory.getValidator();
+  ```
+- 검증 실행
+  - `Set<ConstraintViolation<Item>> validations = validator.validate(item)`
+    - 검증 대상(`Item`)을 직접 검증기에 넣고 결과를 받음
+    - `ConstraintViolation`이라는 검증 오류가 담김
+    - 검증 오류가 발생한 객체, 필드, 메시지 정보 등 다양한 정보 확인 가능
