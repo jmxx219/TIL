@@ -14,6 +14,7 @@
   - [스프링 적용](#스프링-적용)
   - [에러 코드](#에러-코드)
   - [오브젝트 오류](#오브젝트-오류)
+  - [groups](#groups)
 
 <br/>
 
@@ -322,3 +323,22 @@
   - 실제로 사용하면 제약이 많고 복잡함
   - 실무에서는 검증 기능이 해당 객체의 범위는 넘어서는 경우가 있어서 대응이 어려움
   - 오브젝트 오류(글로벌 오류)의 경우 `@ScriptAssert()`을 사용하는 것보다 관련 부분만 직접 자바 코드로 작성하는 것을 권장함
+
+### groups
+
+**Bean Validation 한계**
+- 데이터를 등록할 때와 수정할 때의 요구사항이 다를 수 있음
+  - 등록과 수정에서 검증 조건의 충돌이 발생
+  - 등록과 수정이 같은 Bean Validation을 적용할 수 없는 문제가 발생할 수 있음
+
+**동일한 모델 객체를 등록할 때와 수정할 때 각각 다르게 검증하는 방법**
+  1. Bean Validation의 groups 기능을 사용
+  2. `Item`을 직접 사용하지 않고, 폼 전송을 위한 별도의 모델 객체를 만들어 사용
+
+**groups 적용**
+- 검증할 기능을 각각 그룹으로 나누어 적용 가능
+  - `SaveCheck`, `UpdateCheck` 인터페이스 생성
+  - `@NotNull(groups = UpdateCheck.class)`로 수정 시에만 적용
+  - `@NotBlank(groups = {SaveCheck.class, UpdateCheck.class})`로 등록과 수정시 모두 적용
+- `@Valid`에는 groups를 적용할 수 있는 기능이 없음
+- groups 기능 사용 시에는 `@Validated`만 사용
