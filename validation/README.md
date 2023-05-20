@@ -15,6 +15,7 @@
   - [에러 코드](#에러-코드)
   - [오브젝트 오류](#오브젝트-오류)
   - [groups](#groups)
+  - [Form 전송 객체 분리](#Form-전송-객체-분리)
 
 <br/>
 
@@ -342,3 +343,55 @@
   - `@NotBlank(groups = {SaveCheck.class, UpdateCheck.class})`로 등록과 수정시 모두 적용
 - `@Valid`에는 groups를 적용할 수 있는 기능이 없음
 - groups 기능 사용 시에는 `@Validated`만 사용
+
+### Form 전송 객체 분리
+
+**groups의 한계**
+- 회원 등록 시, 회원과 관련된 데이터 뿐만아니라 객체와 관계없는 부가 데이터가 넘어올 수 있음
+- 등록 시 폼에서 전달하는 데이터가 도메인 객체(`Item`)와 딱 맞지 않기 때문에 실무에서는 잘 사용하지 않음
+- 따라서 복잡한 폼의 데이터를 컨트롤러까지 전달할 별도의 객체를 만들어서 전달함
+  - `ItemSaveForm`과 같이 폼을 전달받는 전용 객체를 만들어서 `@ModelAttribute`로 사용
+  - 컨트롤러에서 해당 폼 데이터를 전달받고, 이후 컨트롤러에서 필요한 데이터를 이용해 `Item`을 생성함
+
+**폼 데이터 전달**
+- **Item** 도메인 객체 사용
+  - `HTML Form ➔ Item ➔ Controller ➔ Item ➔ Repository`
+  - 장점
+    - Item 도메인 객체를 컨트롤러, 레파지토리까지 직접 전달하기 때문에 중간에 Item을 만드는 과정이 없어 간단함
+  - 단점
+    - 간단한 경우에만 적용 가능
+    - 수정 시에 검증이 중복될 수 있고, groups를 사용해야 함
+- 별도의 객체 사용
+  - `HTML Form ➔ ItemSaveForm ➔ Controller ➔ Item 생성 ➔ Repository`
+  - 장점
+    - 전송하는 폼 데이터가 복잡해도 거기에 맞춘 별도의 폼 객체를 사용해서 데이터를 전달 받을 수 있음
+    - 보통 등록용과 수정용으로 별도의 폼 객체를 만들기 때문에 검증이 중복되지 않음
+  - 단점
+    - 폼 데이터를 기반으로 컨트롤러에서 Item 객체를 생성하는 변환 과정이 추가됨
+
+**등록, 수정용 뷰 템플릿**
+- 등록용과 수정용 뷰 템플릿이 비슷할 경우, 합치면 수많은 분기문때문에 나중에 유지보수하기 어려울 수 있음
+- 어설픈 분기문들이 보이기 시작하면, 분리하는 것이 좋음
+
+**적용**
+- `Item`
+  - 해당 도메인에서 검증은 사용하지 않음
+- `ItemSaveForm`
+  - `Item` 저장용 폼
+  ```java
+  @PostMapping("/add")
+  public String addItem(@Validated @ModelAttribute("item") ItemSaveForm form, BindingResult bindingResult, RedirectAttributes redirectAttributes){
+      ...
+  }
+  ```
+- `ItemUpdateForm`
+  - `Item` 수정용 폼
+  ```java
+  @PostMapping("/{itemId}/edit")
+  public String edit(@PathVariable Long itemId, @Validated @ModelAttribute("item") ItemUpdateForm form, BindingResult bindingResult){
+      ...
+  }
+  ```
+
+
+
