@@ -16,6 +16,7 @@
   - [오브젝트 오류](#오브젝트-오류)
   - [groups](#groups)
   - [Form 전송 객체 분리](#Form-전송-객체-분리)
+  - [HTTP 메시지 컨버터](#HTTP-메시지-컨버터)
 
 <br/>
 
@@ -393,5 +394,28 @@
   }
   ```
 
+### HTTP 메시지 컨버터
 
+- `@Valid`와 `@Validated`는 `HttpMessageConverter`(`@RequestBody`)에도 적용 가능
+  - `@ModelAttribute`는 HTTP 요청 파라미터(URL 쿼리 스트링, POST Form)를 다룰 때 사용
+  - `@RequestBody`는 HTTP Body의 데이터를 객체로 변환할 때 사용
+- API 요청
+  - 성공 요청: 성공
+  - 실패 요청: JSON을 객체로 생성하는 것 자체를 실패
+    - `HttpMessageConverter`에서 요청 JSON을 해당 객체로 생성하는데 실패함
+    - 객체 자체를 만들지 못하기 때문에 컨트롤러 호출 X
+    - 컨트롤러 호출 전에 예외가 발생함(Validator도 실행 X)
+  - 검증 오류 요청: JSON을 객체로 생성하고, 검증에서 실패
+    - `HttpMessageConverter`에서 요청 JSON을 해당 객체로 생성하는데 성공
+    - 검증(Validator)에서 오류 발
 
+**`@ModelAttribute` VS `@RequestBody`**
+- `@ModelAttribute`
+  - HTTP 요청 파라미터를 처리하는 `@ModelAttribute`는 각각의 필드 단위로 세밀하게 적용됨
+    - 특정 필드에 타입이 맞지 않는 오류가 발생해도 나머지 필드는 정상 처리 가능
+    - Validator를 사용한 검증 적용 가능
+- `@RequestBody`
+  - `HttpMessageConverter`는 `ModelAttribute`와 다르게 전체 객체 단위로 적용됨
+    - 메시지 컨버터의 작용이 성공해서 객체를 만들어야 `@Valid`와 `@Validated`가 적용됨
+  - `HttpMessageConverter` 단계에서 JSON 데이터 객체로 변경하지 못하면 예외가 발생함
+    - Validator를 사용한 검증 불가능
