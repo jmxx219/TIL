@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/members")
 public class MemberController {
 
-    private static MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
     @GetMapping("/add")
     public String addForm(@ModelAttribute("member") Member member) {
