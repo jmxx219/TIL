@@ -8,6 +8,7 @@
 - [세션](#세션)
   - [동작 방식](#동작-방식)
   - [세션 직접 생성](#세션-직접-생성)
+  - [서블릿 HTTP 세션](#서블릿-HTTP-세션)
 
 
 <br/>
@@ -110,6 +111,7 @@
    2. 서버에서 클라이언트가 전달한 `mySessionId` 쿠키 정보로 세션 저장소를 조회
    3. 로그인시 보관한 세션 정보를 사용
 
+<br/>
 
 ### 세션 직접 생성
 
@@ -126,3 +128,49 @@
 - 테스트 시에 `HttpServletRequest`와 `HttpservletResponse` 객체를 사용할 수 없음
 - 비슷한 역할을 해주는 `MockHttpServletRequest`와 `MockHttpServletResponse` 사용
 
+<br/>
+
+### 서블릿 HTTP 세션
+
+**HttpSession**
+- 서블릿이 제공하는 세션 기능으로, 직접 만든 `SessionManager`와 같은 방식으로 동작
+- 서블릿을 통해 `HttpSession`을 생성 시, 다음과 같은 쿠키가 생성됨
+  - `Cookie: [쿠키 이름]=[추청 불가능한 랜덤 값]`  
+    ex) Cookie: JSESSIONID=5B78E23B513F50164D6FDD8C97B0AD05
+
+**사용**
+- 세션 생성과 조회
+  - `HttpSession session = request.getSession(true)`
+    - `public HttpSession getSession(boolean create)`
+  - 세션의 `create` 옵션
+    - `request.getSession(true)`
+      - 세션이 있으면 기존 세션을 반환하고 없으면 새로운 세션을 생성해서 반환함
+      - 기본값
+    - `request.getSession(false)`
+      - 세션이 있으면 기존 세션을 반환하고 없으면 `null` 반환
+- 세션에 로그인 회원 정보 보관
+  - `session.setAttribute(SessionConst.LOGIN_MEMBER, loginMember)`
+    - 세션에 데이터를 보관하는 방법은 request.setAttribute(..)와 비슷함
+    - 하나의 세션에 여러 값 저장 가능
+  - `session.invalidate()`: 세션 제거
+- 로그인 회원 정보 세션에서 조회
+  - `session.getAttribute(SessionConst.LOGIN_MEMBER)`
+    - 로그인 시점에 세션에 보관한 회원 객체를 찾음
+
+`@SessionAttribute`
+- 세션을 더 편리하게 사용할 수 있도록 스프링이 제공
+- 이미 로그인된 사용자를 찾을 때
+  - `@SessionAttribute(name = "loginMember", required = false) Member loginMember`
+  - 세션을 찾고, 세션에 들어있는 데이터를 찾는 과정을 한 번에 처리해줌
+
+**TrackingModes**
+- `jsessionid`
+  - 웹 브라우저가 쿠키를 지원하지 않을 때, 쿠키 대신 URL을 통해서 세션을 유지하는 방법
+    - 로그인을 처음 시도하면 URL에 `jsessionid`를 포함하고 있음
+  - 이 방법을 사용하려면 URL에 해당 값을 계속 포함해서 전달해야 함
+    - 타임리프 같은 템플릿 엔진을 통해 링크를 걸어두면 `jsessionid`를 URL에 자동으로 포함해줌
+  - 서버 입장에서는 웹 브라우저가 쿠키를 지원하는지 않하는지 최초에는 판단이 불가능함
+    - 이 때문에 쿠키 값도 전달하고 URL에 `jsessionid`도 함께 전달함
+- URL 전달 방식을 끄고 항상 쿠키를 통해서만 세션을 유지하고 싶을 때 사용하는 옵션
+  - `application.properties` ➙ `server.servlet.session.tracking-modes=cookie`
+  - URL에  `jsessionid`가 노출되지 않음
