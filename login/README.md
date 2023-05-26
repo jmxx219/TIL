@@ -7,6 +7,7 @@
 - [쿠키](#쿠키)
 - [세션](#세션)
   - [동작 방식](#동작-방식)
+  - [세션 직접 생성](#세션-직접-생성)
 
 
 <br/>
@@ -109,4 +110,19 @@
    2. 서버에서 클라이언트가 전달한 `mySessionId` 쿠키 정보로 세션 저장소를 조회
    3. 로그인시 보관한 세션 정보를 사용
 
+
+### 세션 직접 생성
+
+- 세션 생성
+  - sessionId 생성 (임의의 추정 불가능한 랜덤 값)
+  - 세션 저장소에 sessionId와 보관할 값 저장
+  - sessionId로 응답 쿠키를 생성해서 클라이언트에 전달 세션 조회
+- 세션 조회
+  - 클라이언트가 요청한 sessionId 쿠키의 값으로, 세션 저장소에 보관한 값 조회 세션 만료
+- 세션 만료
+  - 클라이언트가 요청한 sessionId 쿠키의 값으로, 세션 저장소에 보관한 sessionId와 값 제거
+
+**테스트**
+- 테스트 시에 `HttpServletRequest`와 `HttpservletResponse` 객체를 사용할 수 없음
+- 비슷한 역할을 해주는 `MockHttpServletRequest`와 `MockHttpServletResponse` 사용
 
