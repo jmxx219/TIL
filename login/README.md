@@ -13,6 +13,7 @@
 - [서블릿 필터](#서블릿-필터)
   - [소개](#소개)
   - [요청 로그](#요청-로그)
+  - [인증 필터](#인증-필터)
 
 
 <br/>
@@ -311,10 +312,36 @@
       - 필터의 URL 패턴의 룰은 서블릿과 동일
 - ` @ServletComponentScan`, `@WebFilter(filterName = "logFilter", urlPatterns = "/*")`
   - 필터 등록이 가능하지만 필터 순서 조절 불가능
-
-
+  
 > 실무에서 HTTP 요청 시, 같은 요청의 로그에 모두 같은 식별자를 자동으로 남기는 방법으로 **logback mdc**가 있음
-
 
 <br/>
 
+### 인증 필터
+
+**인증 체크 필터(`LoginCheckFilter`)**
+- 로그인 되지 않은 사용자는 상품 관리 뿐만 아니라 후에 개발될 페이지에도 접근하지 못하도록 함
+- `whitelist = {"/", "/members/add", "/login", "/logout","/css/*"};`
+  - 인증 필터를 적용해도 홈, 회원가입, 로그인 화면, css 같은 리소스에는 접근 가능해야 함
+  - 화이트 리스트 경로는 인증과 무관하게 항상 허용
+- `isLoginCheckPath(requestURI)`
+  - 화이트 리스트를 제외한 나머지 모든 경로에는 인증 체크 로직을 적용함
+- `httpResponse.sendRedirect("/login?redirectURL=" + requestURI);`
+  - 미인증 사용자는 로그인 화면으로 리다이렉트 함
+    - 로그인 후에 다시 홈으로 이동하면, 원하는 경로로 다시 찾아가야 하는 불편함이 존재
+    - 현재 요청 경로인 `requestURI`를 `/login`에 쿼리 파라미터로 함께 전달하여, 컨트롤러에서 로그인 성공 시 해당 경로로 이동하도록 기능을 추가함
+- `return;`
+  - 미인증 사용자일 경우, 필터는 물론 서블릿, 컨트롤러가 더는 호출되지 않도록 함
+  - `redirect`가 응답으로 적용되고 요청 종료
+
+**필터 설정(`WebConfig`)**
+- `setFilter(new LoginCheckFilter())`: 로그인 필터 등록
+- `setOrder(2)`: 순서를 2번으로 하여 로그 필터 다음에 로그인 필터가 적용됨 
+- `addUrlPatterns("/*")`: 모든 요청에 로그인 필터를 적용
+
+**RedirectURL 처리**
+- 로그인에 성공하면 처음 요청한 URL로 이동
+- 로그인 체크 필터에서 미인증 사용자의 경우, 요청 경로를 포함해서 `/login`에 `redirectURL` 요청 파라미터를 추가해서 요청함
+  - 해당 값을 이용해서 로그인 성공 시, 해당 경로로 `redirect`함
+
+<br/>
