@@ -11,7 +11,8 @@
   - [서블릿 HTTP 세션](#서블릿-HTTP-세션)
   - [세션 정보와 타임아웃 설정](#세션-정보와-타임아웃-설정)
 - [서블릿 필터](#서블릿-필터)
-  - [소개][#소개]
+  - [소개](#소개)
+  - [요청 로그](#요청-로그)
 
 
 <br/>
@@ -262,7 +263,7 @@
   - `HTTP 요청` ➙ `WAS` ➙ `필터` ➙ `서블릿(디스패처 서블릿)` ➙ `컨트롤러`
     - 필터를 적용하면 필터가 호출된 후에 서블릿이 호출됨
     - 모든 고객의 요청 로그를 남기는 요구사항이 있다면 필터를 사용
-    - 필터는 특정 URL 패턴에 적용할 수 있음(`\*`: 모든 요청에 필터 적용)
+    - 필터는 특정 URL 패턴에 적용할 수 있음(`/*`: 모든 요청에 필터 적용)
 - 필터 제한
   - 로그인 사용자: `HTTP 요청` ➙ `WAS` ➙ `필터` ➙ `서블릿` ➙ `컨트롤러`
   - 비 로그인 사용자: `HTTP 요청` ➙ `WAS` ➙ `필터(적절하지 않은 요청이라 판단, 서블릿 호출 X)`
@@ -283,7 +284,37 @@
     - `doFilter()`: 고객의 요청이 올 때 마다 해당 메서드가 호출됨. 필터의 로직을 구현
     - `destroy()`: 필터 종료 메소드로, 서블릿 컨테이너가 종료될 때 호출
 
+<br/>
+
+### 요청 로그
+
+**로그 필터(`LogFilter`)**
+- 모든 요청을 로그로 남기는 필터
+- `public class LogFilter implements Filter {}`
+  - 필터 인터페이스를 구현해야 필터 사용이 가능함
+- `doFilter(ServletRequest request, ServletResponse response, FilterChain chain)`
+  - HTTP 요청이 오면 `doFilter`가 호출됨
+  - `ServletRequest`는 HTTP 요청이 아닌 경우까지 고려해서 만든 인터페이스
+    - HTTP를 사용할 경우 `HttpServletRequest`로 다운 케스팅해서 사용
+      - `HttpServletRequest httpRequest = (HttpServletRequest) request`
+  - `chain.doFilter(request, response)`
+    - 다음 필터가 있으면 필터를 호출하고, 없으면 서블릿을 호출함
+    - 해당 로직을 호출하지 않으면 다음 단계로 진행 x
+
+**필터 설정(`WebConfig`)**
+
+- `FilterRegistrationBean`
+  - 필터를 등록하는 방법은 여러가지 존재, 스프링 부트를 사용한다면 `FilterRegistrationBean` 사용
+    - `setFilter(new LogFilter())`: 등록할 필터를 지정
+    - `setOrder(1)`: 필터는 체인으로 동작하기 때문에 순서가 필요함(낮을 수록 먼저 동작) 
+    - `addUrlPatterns("/*")`: 필터를 적용할 URL 패턴을 지정(여러 패턴 지정 가능)
+      - 필터의 URL 패턴의 룰은 서블릿과 동일
+- ` @ServletComponentScan`, `@WebFilter(filterName = "logFilter", urlPatterns = "/*")`
+  - 필터 등록이 가능하지만 필터 순서 조절 불가능
 
 
+> 실무에서 HTTP 요청 시, 같은 요청의 로그에 모두 같은 식별자를 자동으로 남기는 방법으로 **logback mdc**가 있음
 
+
+<br/>
 
