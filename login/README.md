@@ -18,6 +18,7 @@
   - [소개](#인터셉터-소개)
   - [요청 로그](#인터셉터-요청-로그)
   - [인증 인터셉터](#인증-인터셉터)
+- [ArgumentResolver](#ArgumentResolver)
 
 
 <br/>
@@ -472,3 +473,38 @@ if (handler instanceof HandlerMethod) {
 - `excludePathPatterns()`
   - 홈, 회원가입, 로그인, 리소스 조회, 오류와 같은 부분은 로그인 체크 인터셉터를 적용하지 않도록 설정
 - 서블릿 필터에 비해 매우 편리함
+
+<br/>
+
+## ArgumentResolver
+
+> [요첨 매핑 핸들러 어댑터 구조](https://github.com/jmxx219/Spring-Study/blob/main/springmvc/README.md#요청-매핑-핸들러-어댑터-구조) 의 `ArgumentResolver`  
+> `@Login` 애노테이션이 있으면 직접 만든 `ArgumentResolver`가 동작해서 자동으로 세션에 있는 로그인 회원을 찾아주고, 세션에 없다면 `null`을 반환하도록 수정 
+
+**`@Login` 애노테이션 생성**
+```java
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Login {
+}
+```
+- `@Target(ElementType.PARAMETER)`: 파라미터에만 사용
+- `@Retention(RetentionPolicy.RUNTIME)`: 리플렉션 등을 활용할 수 있도록 런타임까지 애노테이션 정보가 남아있음
+
+**LoginMemberArgumentResolver 생성**
+- `HandlerMethodArgumentResolver` 구현
+  - `supportsParameter()`
+    - `@Login` 애노테이션이 있으면서 `Member` 타입일 경우, 해당 `ArgumentResolver`가 사용됨 
+  - `resolveArgument()`
+    - 컨트롤러 호출 직전에 호출 되어서 필요한 파라미터 정보를 생성해줌
+    - 세션에 있는 로그인 회원 정보인 `member` 객체를 찾아서 반환
+    - 이후 스프링 MVC는 컨트롤러의 메서드를 호출하면서 여기 반환된 `member` 객체를 파라미터로 전달함
+
+**WebMvcConfigurer(`WebConfig`)에 설정 추가**
+```java
+@Override
+public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+    resolvers.add(new LoginMemberArgumentResolver());
+}
+```
+  - `addArgumentResolvers()`로 `LoginMemberArgumentResolver` 등록
