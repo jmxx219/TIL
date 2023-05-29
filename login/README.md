@@ -14,6 +14,8 @@
   - [소개](#소개)
   - [요청 로그](#요청-로그)
   - [인증 필터](#인증-필터)
+- [스프링 인터셉터](#스프링-인터셉터)
+  - [소개](#인터셉터-소개)
 
 
 <br/>
@@ -345,3 +347,71 @@
   - 해당 값을 이용해서 로그인 성공 시, 해당 경로로 `redirect`함
 
 <br/>
+
+
+## 스프링 인터셉터
+
+서블릿 필터는 서블릿이 제공, 스프링 인터셉터는 스프링 MVC가 제공
+- 서블릿 필터와 같이 둘 다 웹과 관련된 공통 관심 사항을 효과적으로 처리
+- 적용되는 순서와 범위, 사용 방법이 다름
+  - 인터셉터는 스프링 MVC 구조에 특화된 필터 기능을 제공
+  - 스프링 MVC를 사용하고, 특별히 필터를 꼭 사용해야 하는 상황이 아닐 경우, 인터셉터를 사용하는 것이 더 편리
+  
+### 인터셉터 소개
+
+- 인터셉터 흐름
+  - `HTTP 요청` ➙ `WAS` ➙ `필터` ➙ `서블릿(디스패처 서블릿)` ➙ `스프링 인터셉터` ➙ `컨트롤러`
+  - 스프링 인터셉터는 디스패처 서블릿과 컨트롤러 사이에서 컨트롤러 호출 직전에 호출됨
+  - 스프링 MVC가 제공하는 기능이기 때문에 디스패처 서블릿 이후에 등장
+  - 스프링 인터셉터에도 URL 패턴 적용 가능, 서블릿 URL 패턴과 다르며 매우 정밀하게 설정 가능
+- 인터셉터 제한
+  - 로그인 사용자: `HTTP 요청` ➙ `WAS` ➙ `필터` ➙ `서블릿` ➙ `스프링 인터셉터` ➙ `컨트롤러`
+  - 비 로그인 사용자: `HTTP 요청` ➙ `WAS`➙ `필터` ➙ `서블릿` ➙ `스프링 인터셉터(적절하지 않은 요청이라 판단, 서블릿 호출 X)`
+- 인터셉터 체인
+  - `HTTP 요청` ➙ `WAS` ➙ `필터` ➙ `서블릿` ➙ `인터셉터1` ➙ `인터셉터2` ➙ `컨트롤러`
+- 인터셉터 인터페이스
+   ```java
+   public interface HandlerInterceptor {
+        default boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {}
+        default void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable ModelAndView modelAndView) throws Exception {}
+        default void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) throws Exception {}
+   }
+   ```
+  - `HandlerInterceptor` 인터페이스를 구현
+    - 컨트롤러 호출 전(`preHandle()`), 컨트롤러 호출 후(`postHandle()`), 요청 완료 이후(`afterCompletion()`)와 같이 단계적으로 세분화되어 있음
+    - 어떤 컨트롤러(`handler`)가 호출되는지 호출 정보와 어떤 `ModelAndView`가 반환되는지 응답 정보도 받을 수 있음
+  - 서블릿 필터의 경우, `doFilter()` 하나와 단순히 `request`와 `response`만 제공
+
+**스프링 인터셉터 호출 흐름**
+
+1. 클라이언트 - HTTP 요청
+2. Dispatcher Servlet
+   1. `preHandle` 호출
+      - 컨트롤러 호출 전에 호출(정확히는 핸들러 어댑터 호출 전에 호출)
+        - `preHandle`의 응답값이 `true`이면 다음으로 진행, `false`이면 더 진행 x
+        - `false`인 경우, 나머지 인터셉터는 물론이고, 핸들러 어댑터도 호출되지 x
+   2. 핸들러 매핑 정보에서 핸들러 조회
+   3. 핸들러 어댑터 목록에서 핸들러를 처리할 수 있는 핸들러 어댑터 조회
+   4. 핸들러 어댑터의 handle(handler) 호출
+3. Handler Adapter
+   1. handler(실제 컨트롤러) 호출
+   2. ModelAndView 반환
+4. Dispatcher Servlet
+   1. `postHandle` 호출
+      - 컨트롤러 호출 후에 호출됨(정확히는 핸들러 어댑터 호출 후에 호출)
+5. ViewResolver - View 반환 
+6. Dispatcher Servlet
+   1. render(model) 호출 
+   2. `afterCompletion` 호출 
+      - 뷰가 렌더링 된 이후에 호출
+7. View - 클라이언트에 HTML 응답
+
+**스프링 인터셉터 예외 상황**
+
+- `preHandle`: 컨트롤러 호출 전에 호출
+- `postHandle`: 컨트롤러에서 예외가 발생하면 postHandle 은 호출 x
+- `afterCompletion`
+  - 항상 호출되기 때문에 예외와 무관하게 공통 처리를 할 때 사용
+  - 예외가 발생하면 예외(`ex`)를 파라미터로 받아서 어떤 예외가 발생했는지 로그로 출력할 수 있음
+
+
