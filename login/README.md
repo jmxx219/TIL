@@ -16,6 +16,7 @@
   - [인증 필터](#인증-필터)
 - [스프링 인터셉터](#스프링-인터셉터)
   - [소개](#인터셉터-소개)
+  - [요청 로그](#인터셉터-요청-로그)
 
 
 <br/>
@@ -414,4 +415,43 @@
   - 항상 호출되기 때문에 예외와 무관하게 공통 처리를 할 때 사용
   - 예외가 발생하면 예외(`ex`)를 파라미터로 받아서 어떤 예외가 발생했는지 로그로 출력할 수 있음
 
+<br/>
 
+### 인터셉터 요청 로그
+
+**요청 로그 인터셉터(`LogInterceptor`)**
+- 모든 요청을 로그로 남기는 필터
+  - 요청 로그를 구분하기 위한 `UUID` 생성
+  - `request.setAttribute(LOG_ID, uuid)`
+    - 서블릿 필터의 경우 `UUID`를 지역변수로 생성해서 사용가능
+    - 스프링 인터셉터는 호출 시점이 분리되어 있어 `preHandle`에서 지정한 값을 `postHandle`과 `afterCompletion`에서 함께 사용하려면 어딘가에 담아두어야 함
+    - `LogInterceptor`도 싱글톤으로 사용되기 때문에 멤버 변수를 사용하려면 위험함
+    - `request`에 필요한 값을 담아두고(`setAttribute()`), `getAttribute()`로 찾아서 사용함
+  - `return true`
+    - `true`일 경우, 정상 호출되어서 다음 인터셉터나 컨트롤러가 호출됨
+  - `afterCompletion()`에서 종료 로그 처리
+    - 예외가 발생한 경우 `postHandle`은 호출되지 않음
+
+**HandlerMethod**
+```java
+if (handler instanceof HandlerMethod) {
+    HandlerMethod hm = (HandlerMethod) handler;
+}
+```
+- 핸들러 정보는 어떤 핸들러 매핑을 사용하는가에 따라 달라짐
+- 스프링을 사용하면 일반적으로 `@Controller`, `@RequestMapping`을 활용한 핸들러 매핑을 사용
+  - 이 경우 핸들러 정보로 `HandlerMethod`가 넘어옴
+- `@Controller`가 아닌 정적 리소스(`/resources/static`)가 호출되는 경우
+  - `ResourceHttpRequestHandler`가 핸들러 정보로 넘어오기 때문에 타입에 따라 처리가 필요함
+
+**인터셉터 등록(`WebConfig`)**
+
+- `WebMvcConfigurer`가 제공하는 `addInterceptors()`를 사용해서 인터셉터를 등록함
+  - `registry.addInterceptor(new LogInterceptor())`: 인터셉터를 등록
+  - `order(1)`: 인터셉터의 호출 순서를 지정(낮을 수록 먼저 호출)
+  - `addPathPatterns("/**")`: 인터셉터를 적용할 URL 패턴을 지정(`/**`: 모든 요청에 적용)
+  - `excludePathPatterns("/css/**", "/*.ico", "/error")`: 인터셉터에서 제외할 패턴을 지정
+- URL 패턴
+  - `addPathPatterns()`와 `excludePathPatterns()`로 필터보다 더 정밀하게 URL 패턴 지정 가능
+  - 스프링이 제공하는 URL 경로는 서블릿이 제공하는 URL 경로와 완전히 다름
+    - 더욱 자세하고 세밀하게 설정 가능([PathPattern](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/util/pattern/PathPattern.html) 참고)
