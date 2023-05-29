@@ -17,6 +17,7 @@
 - [스프링 인터셉터](#스프링-인터셉터)
   - [소개](#인터셉터-소개)
   - [요청 로그](#인터셉터-요청-로그)
+  - [인증 인터셉터](#인증-인터셉터)
 
 
 <br/>
@@ -455,3 +456,19 @@ if (handler instanceof HandlerMethod) {
   - `addPathPatterns()`와 `excludePathPatterns()`로 필터보다 더 정밀하게 URL 패턴 지정 가능
   - 스프링이 제공하는 URL 경로는 서블릿이 제공하는 URL 경로와 완전히 다름
     - 더욱 자세하고 세밀하게 설정 가능([PathPattern](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/util/pattern/PathPattern.html) 참고)
+
+
+<br/>
+
+### 인증 인터셉터
+
+**인증 체크 인터셉터(`LoginCheckInterceptor`)**
+- 서블릿 필터보다 코드가 매우 간결해짐
+- 인증이라는 것은 컨트롤러 호출 전에만 호출되면 되기 때문에 `preHandle`만 구현
+
+**인터셉터 등록(`WebConfig`)**
+- `addPathPatterns()`
+  - 기본적으로 모든 경로에 인터셉터를 적용(`/**`) 하도록 설정
+- `excludePathPatterns()`
+  - 홈, 회원가입, 로그인, 리소스 조회, 오류와 같은 부분은 로그인 체크 인터셉터를 적용하지 않도록 설정
+- 서블릿 필터에 비해 매우 편리함
