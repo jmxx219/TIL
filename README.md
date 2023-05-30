@@ -57,6 +57,11 @@
 [README](https://github.com/jmxx219/Spring-Study/blob/main/login/README.md)
 
 
+### 11. 예외 처리
+
+`/exception`
+[README](https://github.com/jmxx219/Spring-Study/blob/main/exception/README.md)
+
 
 <br>
 
