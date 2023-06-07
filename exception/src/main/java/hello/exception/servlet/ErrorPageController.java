@@ -33,7 +33,7 @@ public class ErrorPageController {
     }
 
     private void printErrorInfo(HttpServletRequest request) {
-        log.info("ERROR_EXCEPTION: ex=", request.getAttribute(ERROR_EXCEPTION));
+        log.info("ERROR_EXCEPTION: {}", request.getAttribute(ERROR_EXCEPTION));
         log.info("ERROR_EXCEPTION_TYPE: {}", request.getAttribute(ERROR_EXCEPTION_TYPE));
         log.info("ERROR_MESSAGE: {}", request.getAttribute(ERROR_MESSAGE)); // ex의 경우 NestedServletException 스프링이 한번 감싸서 반환
         log.info("ERROR_REQUEST_URI: {}", request.getAttribute(ERROR_REQUEST_URI));
