@@ -189,7 +189,7 @@
   - 필터: `DispatchType`으로 중복 호출 제거 (`dispatchType=REQUEST`)
   - 인터셉터: 경로 정보로 중복 호출 제거(`excludePathPatterns("/error-page/**")`)
   
-1. `WAS(/error-ex, dispatchType=REQUEST)` ➜ `필터` ➜ `서블릿` ➜ `인터셉터` ➜ `컨트롤러`
-2. `WAS(여기까지 전파)` ⬅ `필터` ⬅ `서블릿` ⬅ `인터셉터` ⬅ `컨트롤러(예외발생)`
+1. `WAS(/error-ex, dispatchType=REQUEST) ➜ 필터 ➜ 서블릿 ➜ 인터셉터 ➜ 컨트롤러`
+2. `WAS(여기까지 전파) ⬅ 필터 ⬅ 서블릿 ⬅ 인터셉터 ⬅ 컨트롤러(예외발생)`
 3. `WAS 오류 페이지 확인`
-4. `WAS(/error-page/500, dispatchType=ERROR)` ➜ `필터(x)` ➜ `서블릿` ➜ `인터셉터(x)` ➜ `컨트롤러(/error-page/500)` ➜ `View`
+4. `WAS(/error-page/500, dispatchType=ERROR) ➜ 필터(x) ➜ 서블릿 ➜ 인터셉터(x) ➜ 컨트롤러(/error-page/500) ➜ View`
