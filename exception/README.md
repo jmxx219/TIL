@@ -7,6 +7,7 @@
   - [오류 페이지 작동 원리](#오류-페이지-작동-원리)
   - [필터](#필터)
   - [인터셉터](#인터셉터)
+- [스프링 부트 오류 페이지](#스프링-부트-오류-페이지)
 
 
 <br/>
@@ -193,3 +194,78 @@
 2. `WAS(여기까지 전파) ⬅ 필터 ⬅ 서블릿 ⬅ 인터셉터 ⬅ 컨트롤러(예외발생)`
 3. `WAS 오류 페이지 확인`
 4. `WAS(/error-page/500, dispatchType=ERROR) ➜ 필터(x) ➜ 서블릿 ➜ 인터셉터(x) ➜ 컨트롤러(/error-page/500) ➜ View`
+
+<br/>
+
+## 스프링 부트 오류 페이지
+
+### 스프링 부트 예외 처리
+
+- 서블릿 예외 처리와 같은 과정을 모두 기본으로 제공함
+  - `WebServerCustomizer`을 만들고 예외 종류에 따라 `ErrorPage` 추가, 예외 처리용 컨트롤러 `ErrorPageController` 생성
+- `ErrorPage`는 자동으로 등록함(`/error` 경로로 기본 오류 페이지를 설정)
+  - `new ErrorPage("/error")`, 상태코드와 예외를 설정하지 않으면 기본 오류 페이지로 사용
+  - 서블릿 밖으로 예외가 발생하거나, `response.sendError()`가 호출되면 모든 오류는 `/error`를 기본으로 호출함
+- `BasicErrorController`라는 스프링 컨트롤러를 자동으로 등록함
+  - `ErrorPage`에서 등록한 `/error`를 매핑해서 처리하는 컨트롤러
+  - 기본적인 로직은 모두 개발되어 있기 때문에 개발자는 오류 페이지만 등록하면 됨
+    - 제공하는 롤과 우선 순위에 따라 등록
+    - 정적 HTML이면 정적 리소스, 동적 오류 화면이면 뷰 템플릿 경로에 오류 페이지 파일을 만들기만 하면 됨
+
+**뷰 선택 우선 순위**
+
+- `BasicErrorController`의 처리 순서
+  1. 뷰 템플릿
+     - `resources/templates/error/500.html`
+     - `resources/templates/error/5xx.html`
+  2. 정적 리소스(`static`, `public`)
+     - `resources/static/error/400.html`
+     - `resources/static/error/404.html`
+     - `resources/static/error/4xx.html`
+  3. 적용 대상이 없을 때 뷰 이름(`error`)
+     - `resources/templates/error.html`
+
+
+**`BasicErrorController`가 제공하는 기본 정보들**
+- 다음 정보를 `model`에 담아서 뷰로 전달함
+  ```html
+  * timestamp: Fri Feb 05 00:00:00 KST 2021
+  * status: 400
+  * error: Bad Request
+  * exception: org.springframework.validation.BindException * trace: 예외 trace
+  * message: Validation failed for object='data'. Error count: 1 * errors: Errors(BindingResult)
+  * path: 클라이언트 요청 경로 (`/hello`)
+  ```
+  - 오류 관련 내부 정보들은 고객에게 노출하지 않는 것이 좋음
+- `BasicErrorController`에서 다음 오류 정보를 `model`에 포함할지 여부 선택 가능
+  - `application.properties`
+  ```
+  server.error.include-exception=false       // exception 포함 여부(true, false)
+  server.error.include-message=never         // message 포함 여부
+  server.error.include-stacktrace=never      // trace 포함 여부
+  server.error.include-binding-errors=never  // errors 포함 여부
+  ```
+  - 기본 값이 `never`인 부분은 다음 3가지 옵션 사용 가능
+    - `never`: 사용하지 않음 
+    - `always`:항상 사용 
+    - `on_param`: 파라미터가 있을 때 사용
+      - 파라미터가 있으면 해당 정보를 노출함
+      - 디버그 시 문제를 확인하기 위해 사용 가능
+      - 개발 서버에서는 사용할 수 있지만, 운영 서버에서는 권장 x
+
+**스프링 부트 오류 관련 옵션**
+- `server.error.whitelabel.enabled=true`
+  - 오류 처리 화면을 못 찾을 시, 스프링 whitelabel 오류 페이지 적용
+- `server.error.path=/error`
+  - 오류 페이지 경로
+  - 스프링이 자동 등록하는 서블릿 글로벌 오류 페이지 경로와 `BasicErrorController` 오류 컨트롤러 경로에 함께 사용됨
+
+**확장**
+- 에러 공통 처리 컨트롤러의 기능을 변경하고 싶은 경우
+  - `ErrorController` 인터페이스를 상속 받아서 구현
+  - `BasicErrorController
+
+> 스프링 부트가 기본으로 제공하는 오류 페이지를 활용하면 오류 페이지와 관련된 대부분의 문제가 손쉽게 해결됨
+
+<br/>
+
