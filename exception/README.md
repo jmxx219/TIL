@@ -8,6 +8,8 @@
   - [필터](#필터)
   - [인터셉터](#인터셉터)
 - [스프링 부트 오류 페이지](#스프링-부트-오류-페이지)
+- [API 예외 처리](#API-예외-처리)
+  - [서블릿 오류 페이지 방식](#서블릿-오류-페이지-방식)
 
 
 <br/>
@@ -268,4 +270,52 @@
 > 스프링 부트가 기본으로 제공하는 오류 페이지를 활용하면 오류 페이지와 관련된 대부분의 문제가 손쉽게 해결됨
 
 <br/>
+
+## API 예외 처리
+
+- HTML 페이지의 경우, 4xx와 5xx와 같은 오류 페이지만 있으면 대부분의 문제 해결 가능
+- API 경우, 각 오류 상황에 맞는 오류 응답 스펙을 정하고 JSON으로 데이터를 주어야 함
+
+### 서블릿 오류 페이지 방식
+
+- `WebServerCustomizer`
+  - `WAS`에 예외가 전달되거나, `response.sendError()`가 호출되면, 위에 등록한 예외 페이지 경로가 호출됨
+- `ApiExceptionController`
+  - API 예외 컨트롤러로, URL에 전달된 `id` 값이 `ex`이면 예외가 발생함
+- `ErrorPageController`
+  - API 응답 추가
+  ```java
+  @RequestMapping(value = "/error-page/500", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Map<String, Object>> errorPage500Api(HttpServletRequest request, HttpServletResponse response) {
+      log.info("API errorPage 500");
+  
+      HashMap<String, Object> result = new HashMap<>();
+      Exception ex = (Exception) request.getAttribute(ERROR_EXCEPTION);
+      result.put("status", request.getAttribute(ERROR_STATUS_CODE));
+      result.put("message", ex.getMessage());
+  
+      Integer statusCode = (Integer) request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+      return new ResponseEntity<>(result, HttpStatus.valueOf(statusCode));
+  }
+  ```
+  - `produces = MediaType.APPLICATION_JSON_VALUE`
+    - HTTP Header의 `Accept` 값이 `application/json` 경우, 해당 메서드가 호출됨
+    - 클라이언트가 받고 싶은 미디어 타입이 `JSON`이면 해당 컨트롤러의 메서드가 호출됨
+  - 응답 데이터를 위에 `Map`을 만들고 `status`, `message` 키에 값을 할당
+  - `ResponseEntity`을 이용하여 응답하기 때문에 메시지 컨버터가 동작하면서 클라이언트에 `JSON`이 반환됨
+- API 요청
+  - 정상 호출
+    - `http://localhost:8080/api/members/spring`
+    - API로 JSON 형식으로 데이터가 정상 반환됨
+  - 예외 발생 호출
+    - `http://localhost:8080/api/members/ex`
+    - HTTP Header에 `Accept`가 `application/json`인 경우, JSON 형식으로 데이터가 정상 반환됨
+      ```json
+      {
+          "message": "잘못된 사용자",
+          "status": 500
+      }
+      ```
+    - HTTP Header에 `Accept`가 `application/json`이 아닌 경우, 미리 만들어둔 기존 오류 페이지 HTML이 반환됨
+
 
