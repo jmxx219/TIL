@@ -11,6 +11,7 @@
 - [API 예외 처리](#API-예외-처리)
   - [서블릿 오류 페이지 방식](#서블릿-오류-페이지-방식)
   - [스프링 부트 기본 오류 처리](#스프링-부트-기본-오류-처리)
+  - [HandlerExceptionResolver](#HandlerExceptionResolver)
 
 
 <br/>
@@ -349,4 +350,112 @@
 - `BasicErrorController`는 HTML 페이지를 제공하는 경우에 매우 편리함
   - 하지만 API 처리의 경우, API 마다 각각의 컨트롤러나 예외에서 서로 다른 응답 결과를 출력해야 할 수도 있음(복잡함)
   - API 오류 처리는 `@ExceptionHandler`가 제공하는 기능을 사용하는 것이 좋음
+
+<br/>
+
+### HandlerExceptionResolver
+
+- 예외가 발생해서 서블릿을 넘어 WAS까지 예외가 전달되면, HTTP 상태코드가 500으로 처리됨
+- 동작 방식을 변경하고 싶을 때 `HandlerExceptionResolver` 사용
+  - 발생하는 예외에 따라서 400, 404 등등 다른 상태 코드로 처리하고 싶은 경우
+  - 오류 메시지, 형식 등을 API 마다 다르게 처리하고 싶은 경우
+
+**상태 코드 변환**
+
+- `IllegalArgumentException` 예외를 처리하지 못해 컨트롤러 밖으로 넘어가는 일이 발생할 경우
+  - HTTP 상태 코드를 400으로 처리하고 싶음
+- `ApiExceptionController`
+  ```java
+  if (id.equals("bad")) {
+      throw new IllegalArgumentException("잘못된 입력 값");
+  }
+  ```
+  - `http://localhost:8080/api/members/bad` 호출하면 `IllegalArgumentException` 발생
+  - 실행하면 상태 코드가 500으로 나옴
+  
+**HandlerExceptionResolver**
+
+- 스프링 MVC는 컨트롤러(핸들러) 밖으로 예외가 던져진 경우, 예외를 해결하고 동작을 새로 정의할 수 있는 방법을 제공함
+- 컨트롤러 밖으로 던져진 예외를 해결하고, 동작 방식을 변경하고 싶으면 `HandlerExceptionResolver`을 사용함
+  - 줄여서 `ExceptionResolver`이라고 함
+- ExceptionResolver 적용
+  1. Dispatcher Servlet - `preHandle` 호출
+  2. 핸들러 어댑터의 handle(handler) 호출
+  3. 핸들러(컨트롤러)에서 예외 발생
+  4. 핸들러 어댑터에서 Dispatcher Servlet으로 예외 전달
+  - 적용 전
+    5. Dispatcher Servlet - `afterCompletion` 호출
+    6. WAS로 예외 전달
+  - 적용 후
+    5. **ExceptionResolver에서 예외 해결 시도**
+    6. Dispatcher Servlet - render(model) 호출
+    7. Dispatcher Servlet - `afterCompletion` 호출
+    8. WAS로 정상 응답
+    
+> `ExceptionResolver`로 예외를 해결해도 `postHandle()`은 호출되지 않음
+
+- `HandlerExceptionResolver`
+  ```java
+  public interface HandlerExceptionResolver { 
+        ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response,
+                                Object handler, Exception ex);
+  }
+  ```
+  - `handler`: 핸들러(컨트롤러) 정보
+  - `Exception ex`: 핸들러(컨트롤러)에서 발생한 발생한 예외
+- `MyHandlerExceptionResolver`
+  ```java
+  public class MyHandlerExceptionResolver implements HandlerExceptionResolver {
+      @Override
+      public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+          try {
+              if (ex instanceof IllegalArgumentException) {
+                  log.info("IllegalArgumentException resolver to 400");
+                  response.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
+                  return new ModelAndView();
+              }
+          } catch(IOException e){
+              log.error("resolver ex", e);
+          }
+          return null;
+      }
+  }
+  ```
+  - `ExceptionResolver`가 `ModelAndView`를 반환하는 이유는 try, catch 하듯이 `Exception`을 처리해서 정상 흐름처럼 변경하기 위함
+    - `Exception`을 Resolver(해결)하는 것이 목적
+  - `IllegalArgumentException` 발생 시, `response.sendError(400)`을 호출해서 HTTP 상태 코드를 400으로 지정하고 빈 `ModelAndView`를 반환함
+- `WebConfig`
+  - `WebMvcConfigurer`를 통해 `MyHandlerExceptionResolver` 등 
+  ```java
+  @Override
+  public void extendHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
+      resolvers.add(new MyHandlerExceptionResolver());
+  }
+  ```
+  - `configureHandlerExceptionResolvers(..)`를 사용하면 스프링이 기본으로 등록하는 `ExceptionResolver`가 제거되므로 주의
+  - `extendHandlerExceptionResolvers`를 사용*
+
+
+**반환 값에 따른 동작 방식**
+- 빈 `ModelAndView`
+  - `new ModelAndView()`처럼 빈 `ModelAndView`를 반환하면 뷰를 렌더링 하지 않고, 정상 흐름으로 서블릿이 리턴됨
+- `ModelAndView` 지정
+  - `ModelAndView`에 `View`, `Model` 등 정보를 저장해서 반환하면 뷰를 렌더링 함
+- `null`
+  - 다음 `ExceptionResolver`를 찾아서 실행함
+  - 만약 처리할 수 있는 `ExceptionResolver`가 없으면 예외 처리가 안되고, 기존에 발생한 예외를 서블릿 밖으로 던짐
+
+**ExceptionResolver 활용**
+
+- 예외 상태 코드 변환
+  - 예외를 response.sendError() 호출로 변경해서 서블릿에서 상태 코드에 따른 오류를 처리하도록 의임
+  - 이후 WAS는 서블릿 오류 페이지를 찾아서 내부 호출함(스프링 부트가 기본으로 설정한 `/error` 호출)
+- 뷰 템플릿 처리
+  - `ModelAndView`에 값을 채워서 예외에 따른 새로운 오류 화면 뷰를 렌더링해서 고객에게 제공함 
+- API 응답 처리
+  - `response.getWriter().println("hello")`
+    - HTTP 응답 바디에 직접 데이터를 넣어주는 것이 가능
+    - JSON으로 응답하면 API 응답 처리를 할 수 있음
+
+
 
