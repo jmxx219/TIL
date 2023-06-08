@@ -1,69 +1,39 @@
 # Spring
 
-
-### 1. 스프링 입문
-
-`/hello-spring`
-
-### 2. 스프링 핵심 원리
+`/hello-spring`  스프링 입문
 
 `/basic-spring`
-[README](https://github.com/jmxx219/Spring-Study/tree/main/basic-spring/README.md)
-
-
-### 3. 서블릿, JSP, MVC 패턴
+[스프링 핵심 원리](https://github.com/jmxx219/Spring-Study/tree/main/basic-spring/README.md)
 
 `/servlet`
-[README](https://github.com/jmxx219/Spring-Study/blob/main/servlet/README.md)
-
-### 4. Spring MVC 기본 기능
+[서블릿, JSP, MVC 패턴](https://github.com/jmxx219/Spring-Study/blob/main/servlet/README.md)
 
 `/springmvc`
-[README](https://github.com/jmxx219/Spring-Study/blob/main/springmvc/README.md)
-
-### 5. 상품 관리 서비스 개발
+[Spring MVC 기본 기능](https://github.com/jmxx219/Spring-Study/blob/main/springmvc/README.md)
 
 `/item-service`
-[README](https://github.com/jmxx219/Spring-Study/blob/main/item-service/README.md)
-
-### 6. Thymeleaf
+[상품 관리 서비스 개발](https://github.com/jmxx219/Spring-Study/blob/main/item-service/README.md)
 
 `/thymeleaf-basic`
-[README](https://github.com/jmxx219/Spring-Study/blob/main/thymeleaf-basic/README.md)
-
-
-### 7. Thymeleaf - Spring 통합
+[Thymeleaf](https://github.com/jmxx219/Spring-Study/blob/main/thymeleaf-basic/README.md)
 
 `/form`
-[README](https://github.com/jmxx219/Spring-Study/blob/main/form/README.md)
-
-
-
-### 8. 메시지, 국제화
+[Thymeleaf - Spring 통합](https://github.com/jmxx219/Spring-Study/blob/main/form/README.md)
 
 `/message`
-[README](https://github.com/jmxx219/Spring-Study/blob/main/message/README.md)
-
-
-### 9. Validation
+[메시지, 국제화](https://github.com/jmxx219/Spring-Study/blob/main/message/README.md)
 
 `/validation`
-[README](https://github.com/jmxx219/Spring-Study/blob/main/validation/README.md)
-
-
-### 10. Login 처리
+[Validation](https://github.com/jmxx219/Spring-Study/blob/main/validation/README.md)
 
 `/login`
-[README](https://github.com/jmxx219/Spring-Study/blob/main/login/README.md)
-
-
-### 11. 예외 처리
+[Login 처리](https://github.com/jmxx219/Spring-Study/blob/main/login/README.md)
 
 `/exception`
-[README](https://github.com/jmxx219/Spring-Study/blob/main/exception/README.md)
+[예외 처리](https://github.com/jmxx219/Spring-Study/blob/main/exception/README.md)
 
 
-<br>
+<br/>
 
 ---
 `강의` : [김영한의 스프링 완전 정복](https://www.inflearn.com/roadmaps/373)
