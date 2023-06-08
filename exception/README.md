@@ -10,6 +10,7 @@
 - [스프링 부트 오류 페이지](#스프링-부트-오류-페이지)
 - [API 예외 처리](#API-예외-처리)
   - [서블릿 오류 페이지 방식](#서블릿-오류-페이지-방식)
+  - [스프링 부트 기본 오류 처리](#스프링-부트-기본-오류-처리)
 
 
 <br/>
@@ -228,7 +229,7 @@
      - `resources/templates/error.html`
 
 
-**`BasicErrorController`가 제공하는 기본 정보들**
+#### BasicErrorController가 제공하는 기본 정보들
 - 다음 정보를 `model`에 담아서 뷰로 전달함
   ```html
   * timestamp: Fri Feb 05 00:00:00 KST 2021
@@ -276,6 +277,8 @@
 - HTML 페이지의 경우, 4xx와 5xx와 같은 오류 페이지만 있으면 대부분의 문제 해결 가능
 - API 경우, 각 오류 상황에 맞는 오류 응답 스펙을 정하고 JSON으로 데이터를 주어야 함
 
+<br/>
+
 ### 서블릿 오류 페이지 방식
 
 - `WebServerCustomizer`
@@ -318,4 +321,32 @@
       ```
     - HTTP Header에 `Accept`가 `application/json`이 아닌 경우, 미리 만들어둔 기존 오류 페이지 HTML이 반환됨
 
+<br/>
+
+### 스프링 부트 기본 오류 처리
+
+**스프링 부트의 예외 처리**
+- 스프링 부트의 기본 설정은 오류 발생 시 `/error`를 오류 페이지로 요청함
+- `BasicErrorController`는 해당 경로를 기본으로 받음(`server.error.path`로 수정 가능, 기본 경로 `/error`)
+
+**`BasicErrorController`**
+  - API 예외처리도 스프링 부트가 제공하는 기본 오류 방식을 사용할 수 있음 
+    - `BasicErrorController`를 사용하기 위해 `WebServerCustomizer`의 `@Component`는 주석처리함
+  ```java
+  @RequestMapping(produces = MediaType.TEXT_HTML_VALUE)
+  public ModelAndView errorHtml(HttpServletRequest request, HttpServletResponse response) {}
+  
+  @RequestMapping
+  public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {}
+  ```
+  - `/error` 동일한 경로를 처리하는 `errorHtml()과 `error()` 두 메서드 존재
+    - `errorHtml()`: 클라이언트 요청의 Accept 해더 값이 `text/html`인 경우에 호출해서 view를 제공
+    - `error()`: 그외 경우에 호출되고 `ResponseEntity`로 HTTP Body에 `JSON` 데이터를 반환함
+  - 스프링 부트는 [BasicErrorController가 제공하는 기본 정보들](#BasicErrorController가-제공하는-기본-정보들)을 활용해서 오류 API를 생성함
+
+**HTML 페이지 VS API 오류**
+- `BasicErrorController`를 확장하면 JSON 메시지도 변경할 수 있음
+- `BasicErrorController`는 HTML 페이지를 제공하는 경우에 매우 편리함
+  - 하지만 API 처리의 경우, API 마다 각각의 컨트롤러나 예외에서 서로 다른 응답 결과를 출력해야 할 수도 있음(복잡함)
+  - API 오류 처리는 `@ExceptionHandler`가 제공하는 기능을 사용하는 것이 좋음
 
