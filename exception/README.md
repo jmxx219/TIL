@@ -267,7 +267,7 @@
 **확장**
 - 에러 공통 처리 컨트롤러의 기능을 변경하고 싶은 경우
   - `ErrorController` 인터페이스를 상속 받아서 구현
-  - `BasicErrorController
+  - `BasicErrorController` 상속 받아서 기능 추가
 
 > 스프링 부트가 기본으로 제공하는 오류 페이지를 활용하면 오류 페이지와 관련된 대부분의 문제가 손쉽게 해결됨
 
@@ -383,14 +383,14 @@
   2. 핸들러 어댑터의 handle(handler) 호출
   3. 핸들러(컨트롤러)에서 예외 발생
   4. 핸들러 어댑터에서 Dispatcher Servlet으로 예외 전달
-  - 적용 전
-    5. Dispatcher Servlet - `afterCompletion` 호출
-    6. WAS로 예외 전달
-  - 적용 후
-    5. **ExceptionResolver에서 예외 해결 시도**
-    6. Dispatcher Servlet - render(model) 호출
-    7. Dispatcher Servlet - `afterCompletion` 호출
-    8. WAS로 정상 응답
+  - `적용 전`
+  5. Dispatcher Servlet - `afterCompletion` 호출
+  6. WAS로 예외 전달
+  - `적용 후`
+  5. **ExceptionResolver에서 예외 해결 시도**
+  6. Dispatcher Servlet - render(model) 호출
+  7. Dispatcher Servlet - `afterCompletion` 호출
+  8. WAS로 정상 응답
     
 > `ExceptionResolver`로 예외를 해결해도 `postHandle()`은 호출되지 않음
 
