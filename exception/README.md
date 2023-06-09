@@ -480,43 +480,48 @@
    - 예외에 따라 HTTP 상태 코드를 지정함
    - `@ResponseStatus(value = HttpStatus.NOT_FOUND)`
 3. `DefaultHandlerExceptionResolver` ➜ 우선 순위가 가장 낮음
-   - 스프링 내부 기본 예외를 처리함
+   - 스프링 내부에서 발생하는 기본 예외를 처리함
 
 <br/> 
 
 #### ResponseStatusExceptionResolver
 
-**처리**
-- `@ResponseStatus`가 달려있는 예외
-- `ResponseStatusException` 예외
-
-**`@ResponseStatus`**
-```java
-//@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "잘못된 요청 오류") 
-@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "error.bad")
-public class BadRequestException extends RuntimeException {
-}
-```
-- `BadRequestException` 예외가 컨트롤러 밖으로 넘어가면 `ResponseStatusExceptionResolver` 예외가 해당 애노테이션을 확인해서 오류 코드를 `HttpStatus.BAD_REQUEST(400)`으로 변경하고, 메시지를 넣음
-  - `ResponseStatusExceptionResolver` 내부에서 `response.sendError(statusCode, resolvedReason)`을 호출함
-    - `sendError(400)`을 호출했기 때문에 WAS에서는 다시 오류 페이지 `/error`를 내부 요청함
-- 메시지 기능
-  - `reason`을 `MessageSource`에서 찾는 기능도 제공함
-  - `messages.properties` ➜ `error.bad=잘못된 요청 오류입니다. 메시지 사용`
-
-**`ResponseStatusException`**
-
-- `@ResponseStatus`는 개발자가 직접 변경할 수 없는 예외에는 적용 불가능
-  - 애노테이션을 직접 넣어야하는데, 코드를 수정할 수 없는 라이브러리의 예외 코드 같은 곳에는 적용할 수 없음
-  - 애노테이션을 사용하기 때문에 동적으로 변경하는 것이 어려움
-- 이때 `ResponseStatusException` 예외를 사용
+- **`@ResponseStatus`가 달려있는 예외**
   ```java
-  @GetMapping("/api/response-status-ex2")
-  public String responseStatusEx2() {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "error.bad", new IllegalArgumentException());
+  //@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "잘못된 요청 오류") 
+  @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "error.bad")
+  public class BadRequestException extends RuntimeException {
   }
   ```
-  - `status`, `message`, `exception` 을 넣을 수 있음
+  - `BadRequestException` 예외가 컨트롤러 밖으로 넘어가면 `ResponseStatusExceptionResolver` 예외가 해당 애노테이션을 확인해서 오류 코드를 `HttpStatus.BAD_REQUEST(400)`으로 변경하고, 메시지를 넣음
+    - `ResponseStatusExceptionResolver` 내부에서 `response.sendError(statusCode, resolvedReason)`을 호출함
+      - `sendError(400)`을 호출했기 때문에 WAS에서는 다시 오류 페이지 `/error`를 내부 요청함
+  - 메시지 기능
+    - `reason`을 `MessageSource`에서 찾는 기능도 제공함
+    - `messages.properties` ➜ `error.bad=잘못된 요청 오류입니다. 메시지 사용`
+- **`ResponseStatusException` 예외**
+  - `@ResponseStatus`는 개발자가 직접 변경할 수 없는 예외에는 적용 불가능
+    - 애노테이션을 직접 넣어야하는데, 코드를 수정할 수 없는 라이브러리의 예외 코드 같은 곳에는 적용할 수 없음
+    - 애노테이션을 사용하기 때문에 동적으로 변경하는 것이 어려움
+  - 이때 `ResponseStatusException` 예외를 사용
+    ```java
+    @GetMapping("/api/response-status-ex2")
+    public String responseStatusEx2() {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "error.bad", new IllegalArgumentException());
+    }
+    ```
+    - `status`, `message`, `exception` 을 넣을 수 있음
   
 <br/>
 
+#### DefaultHandlerExceptionResolver
+
+- 파라미터 바인딩 시점에 타입이 맞지 않은 경우, `TypeMismatchException` 발생
+  - 예외가 발생했기 대문에 서블릿 컨테이너까지 올라가고, 결과적으로 500 오류가 발생함
+- 하지만 파라미터 바인딩은 대부분 클라이언트가 HTTP 요청 정보를 잘못 호출해서 발생하는 문제
+  - HTTP에서는 이러한 경우 HTTP 상태 코드 400을 사용하도록 되어있음
+- `DefaultHandlerExceptionResolver`는 500 오류가 아닌, HTTP 상태 코드 400 오류로 변경함
+  - `handleTypeMismatch` 내부에서 `response.sendError(HttpServletResponse.SC_BAD_REQUEST)`를 호출함
+    - `sendError(400)`을 호출했기 때문에 WAS에서는 다시 오류 페이지 `/error`를 내부 요청함
+
+<br/>
