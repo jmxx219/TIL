@@ -448,7 +448,7 @@
 **ExceptionResolver 활용**
 
 - 예외 상태 코드 변환
-  - 예외를 response.sendError() 호출로 변경해서 서블릿에서 상태 코드에 따른 오류를 처리하도록 의임
+  - 예외를 `response.sendError()` 호출로 변경해서 서블릿에서 상태 코드에 따른 오류를 처리하도록 의임
   - 이후 WAS는 서블릿 오류 페이지를 찾아서 내부 호출함(스프링 부트가 기본으로 설정한 `/error` 호출)
 - 뷰 템플릿 처리
   - `ModelAndView`에 값을 채워서 예외에 따른 새로운 오류 화면 뷰를 렌더링해서 고객에게 제공함 
@@ -457,5 +457,14 @@
     - HTTP 응답 바디에 직접 데이터를 넣어주는 것이 가능
     - JSON으로 응답하면 API 응답 처리를 할 수 있음
 
+**예외 마무리하기**
 
+- 예외가 발생하면 WAS까지 예외가 던져지고, WAS에서 오류 페이지 정보를 찾아서 다시 `/error`를 호출하는 과정은 복잡함
+- `ExceptionResolver`를 활용하여 예외가 발생했을 때, 복잡한 과정없이 여기에서 문제를 해결할 수 있음
+- [UserHandlerExceptionResolver](https://github.com/jmxx219/Spring-Study/blob/main/exception/src/main/java/hello/exception/resolver/UserHandlerExceptionResolver.java)
+  - **컨트롤러에서 예외가 발생해도 `ExceptionResolver`에서 예외를 모두 처리함**
+  - 예외가 발생해도 서블릿 컨테이너까지 예외가 전달되지 않고, 스프링 MVC에서 예외 처리가 끝이 나기 때문에 예외 처리가 깔끔해짐
+  - 결과적으로 WAS 입장에서는 정상 처리됨
+- `ExceptionResolver`를 직접 구현하는 것은 상당히 복잡함
 
+<br/>
