@@ -14,6 +14,7 @@
   - [HandlerExceptionResolver](#HandlerExceptionResolver)
   - [스프링이 제공하는 ExceptionResolver](#스프링이-제공하는-ExceptionResolver)
   - [@ExceptionHandler](#@ExceptionHandler)
+  - [@ControllerAdvice](#@ControllerAdvice)
 
 
 <br/>
@@ -593,3 +594,25 @@ public ResponseEntity<ErrorResult> userExHandle(UserException e) {
      - `@ResponseStatus`는 애노테이션이므로 HTTP 응답 코드를 동적으로 변경할 수 없음
 
 <br/>
+
+### @ControllerAdvice
+
+- `@ExceptionHandler`로 예외를 깔끔하게 처리할 수 있게 됨
+  - 정상 코드와 예외 처리가 하나의 컨트롤러에 섞여있기 때문에 `@ControllerAdvice` 또는 `@RestControllerAdvice`를 사용하면 둘을 분리할 수 있음
+
+**`@ControllerAdvice`**
+- 대상으로 지정한 여러 컨트롤러에 `@ExceptionHandler`, `@InitBinder` 기능을 부여해주는 역할을 함
+- 대상을 지정하지 않으면 모든 컨트롤러에 적용됨(글로벌 적용)
+- `@RestControllerAdvice` = `@ControllerAdvice` + `@ResponseBody`
+
+**대상 컨트롤러 지정 방법**
+- 특정 애노테이션이 있는 컨트롤러 지정
+  - `@ControllerAdvice(annotations = RestController.class)`
+- 특정 패키지를 직접 지정
+  - `@ControllerAdvice("org.example.controllers")`
+  - 패키지 지정의 경우, 해당 패키지와 그 하위에 있는 컨트롤러가 대상이 됨
+- 특정 클래스를 지정
+  - `@ControllerAdvice(assignableTypes = {ControllerInterface.class, AbstractController.class})`
+- 대상 컨트롤러 지정을 생략하면, 모든 컨트롤러에 적용됨
+
+> `@ExceptionHandler`와 `@ControllerAdvice`를 조합하면 예외를 깔끔하게 해결 가능
