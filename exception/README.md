@@ -13,6 +13,7 @@
   - [스프링 부트 기본 오류 처리](#스프링-부트-기본-오류-처리)
   - [HandlerExceptionResolver](#HandlerExceptionResolver)
   - [스프링이 제공하는 ExceptionResolver](#스프링이-제공하는-ExceptionResolver)
+  - [@ExceptionHandler](#@ExceptionHandler)
 
 
 <br/>
@@ -523,5 +524,72 @@
 - `DefaultHandlerExceptionResolver`는 500 오류가 아닌, HTTP 상태 코드 400 오류로 변경함
   - `handleTypeMismatch` 내부에서 `response.sendError(HttpServletResponse.SC_BAD_REQUEST)`를 호출함
     - `sendError(400)`을 호출했기 때문에 WAS에서는 다시 오류 페이지 `/error`를 내부 요청함
+
+<br/>
+
+### @ExceptionHandler
+
+**HTML 화면 오류 VS API 화면 오류**
+- 웹 브라우저에 HTML 화면을 제공할 때, 오류가 발생하면 `BasicErrorController`를 사용하는게 편리
+  - 단순히 5xx, 4xx 관련된 오류 화면을 보여줌
+- API는 각 시스템마다 응답의 모양도 다르고, 스펙도 다르기 때문에 예외에 따라 각각 다른 데이터를 출력해야 할 수도 있음
+  - 같은 예외라고 해도 어떤 컨트롤러에서 발생했는지에 따라 다른 예외 응답을 줘야 할 수도 있음
+- `BasicErrorController`를 사용하거나 `HandlerExceptionResolver`를 직접 구현하는 방식으로는 API 예외를 다루기 어려움
+
+**API 예외 처리의 어려운 점**
+- `HandlerExceptionResolver`은 `ModelAndView`를 반환해야 하는데, API 응답에는 필요하지 않음
+- API 응답을 위해서 `HttpServletResponse`에 직접 응답 데이터를 넣어주는 것은 매우 불편함
+- 특정 컨트롤러에서만 발생하는 예외를 별도로 처리하기 어려움
+
+**@ExceptionHandler**
+- 스프링은 `ExceptionHandlerExceptionResolver`를 기본으로 제공
+  - 스프링은 API 예외 처리 문제를 해결하기 위해 `@ExceptionHandler` 애노테이션을 사용하는 편리한 예외 처리 기능을 제공함
+  - 기본으로 제공하는 `ExceptionResolver` 중에 우선순위 가장 높음
+- 예외 처리 방법
+  - `@ExceptionHandler` 애노테이션을 선언하고, 해당 컨트롤러에서 처리하고 싶은 예외를 지정함
+  - 해당 컨트롤러에서 예외가 발생하면 해당 메서드가 호출됨
+  - 지정한 예외 또는 그 예외의 자식 클래스 모두 잡을 수 있음
+- 우선순위(스프링의 우선순위는 항상 자세한 것이 우선권을 가짐)
+  - `@ExceptionHandler`에 지정한 부모 클래스는 자식 클래스까지 처리 가능
+  - `자식예외`가 발생하면 `부모예외처리()`와 `자식예외처리()` 모두 호출 대상이 됨
+    - 둘 중 자세한 것이 우선권을 가지므로 `자식예외처리()`가 호출됨
+- 다양한 예외
+  - `@ExceptionHandler({AException.class, BException.class})`
+  - 다양한 예외를 한 번에 처리 가능
+- 예외 생략 가능
+  - `@ExceptionHandler`에 예외를 생략할 수 있음
+  - 생략하면 메서드 파라미터의 예외로 지정됨
+- 파라미터와 응답
+  - `@ExceptionHandler`는 스프링의 컨트롤러의 파라미터 응답처럼 다양한 파라미터와 응답을 지정할 수 있음
+- HTML 오류 화면
+  - `ModelAndView`를 사용해서 오류 화면(HTML)을 응답하는데 사용할 수도 있음
+
+**실행 흐름**
+```java
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+@ExceptionHandler(IllegalArgumentException.class)
+public ErrorResult illegalExHandle(IllegalArgumentException e) {
+    log.error("[exceptionHandler] ex", e);
+    return new ErrorResult("BAD", e.getMessage());
+}
+
+@ExceptionHandler
+public ResponseEntity<ErrorResult> userExHandle(UserException e) {
+    log.error("[exceptionHandler] ex", e);
+    ErrorResult errorResult = new ErrorResult("USER-EX", e.getMessage());
+    return new ResponseEntity<>(errorResult, HttpStatus.BAD_REQUEST);
+}
+```
+  1. 컨트롤러를 호출한 결과 `IllegalArgumentException` 예외가 컨트롤러 밖으로 던져짐
+  2. 예외가 발생했으므로 `ExceptionResolver`가 작동함
+     - 우선순위가 가장 높은 `ExceptionHandlerExceptionResolver`가 실행됨
+  3. `ExceptionHandlerExceptionResolver`는 해당 컨트롤러에 `IllegalArgumentException`을 처리할 수 있는 `ExceptionHandler`가 있는지 확인함
+     - `@ExceptionHandler`에 예외를 지정하지 않으면, 해당 메서드의 파라미터의 예외를 사용함
+  4. `illegalExHandle()`를 실행
+     - `@RestController` 이므로 `@ResponseBody`가 적용되어 `HTTP 컨버터`가 사용되고, 응답이 JSON으로 반환됨
+     - `ResponseEntity`를 사용할 경우, HTTP 메시지 바디에 직접 응답함
+  5. `@ResponseStatus(HttpStatus.BAD_REQUEST)`를 지정했으므로 HTTP 상태코드 400으로 응답함
+     - `ResponseEntity`를 사용할 경우, HTTP 응답 코드를 프로그래밍해서 동적으로 변경 가능
+     - `@ResponseStatus`는 애노테이션이므로 HTTP 응답 코드를 동적으로 변경할 수 없음
 
 <br/>
