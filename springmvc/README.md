@@ -133,6 +133,8 @@ public String headers(
 }
 ```
 
+<br/>
+
 ### 요청 파라미터
 
 > **클라이언트에서 서버로 요청 데이터를 전달하는 방법**
@@ -180,6 +182,8 @@ public String headers(
     ```
   - `@ModelAttribute` 생략 가능 but `@RequestParam`도 생략 가능하기 때문에 혼란이 발생할 수 있음
     - `String`, `int`, `Integer`와 같은 단순 타입은 `@RequestParam`로, 나머지는 `@ModelAttribute`로 적용함
+
+<br/>
 
 ### 요청 메시지
 
@@ -274,6 +278,8 @@ public String headers(
   - 해당 경로에 리소스를 넣어두면 스프링 부트가 정적 리소스로 서비스(파일 변경없이 그대로)를 제공
   - `src/main/resources/static`: 정적 리소스 경로
 
+<br/>
+
 ### 뷰 템플릿
 - 웹 브라우저에 동적인 HTML을 제공할 때 사용
 - 뷰 템플릿을 거쳐서 HTML이 생성되고, 뷰가 응답을 만들어서 전달
@@ -300,6 +306,8 @@ public String headers(
      - `@ResponseBody`가 없으면 `response/hello`로 뷰 리졸버 실행되어 뷰를 찾고 렌더링함
        - 뷰의 논리 이름 반환 시 `templates/response/hello.html` 경로의 뷰 템플릿이 렌더링됨
      - `@ResponseBody`가 있으면 HTTP 메시지 바디에 직접 `response/hello` 문자 입력
+
+<br/>
 
 ### HTTP API, 메시지 바디에 직접 입력
 - HTTP API를 제공하는 경우 데이터를 전달하기 때문에 HTTP 메시지 바디에 JSON과 같은 형식으로 데이터를 보냄
@@ -331,6 +339,8 @@ HTTP API처럼 JSON 데이터를 HTTP 메시지 바디에 직접 읽거나 쓰�
 - HTTP 요청: `@RequestBody`, `HttpEntity(RequestEntity)`
 - HTTP 응답: `@ResponseBody`, `HttpEntity(ResponseBody)`
 
+<br/>
+
 ### HTTP 메시지 컨버터 인터페이스
 
 - **HTTP 요청 데이터 읽기**
@@ -348,6 +358,8 @@ HTTP API처럼 JSON 데이터를 HTTP 메시지 바디에 직접 읽거나 쓰�
         - ex) `text/plain`, `application/json`, `*/*`
   - `write()` : 메시지를 쓰는 기능(HTTP 응답 메시지 바디에 데이터 생성)
   
+<br/>
+
 ### 스프링 부트 기본 메시지 컨버터
 
 다양한 메시지 컨버터를 제공하는데, 대상 클래스 타입과 미디어 타입을 체크해서 사용여부를 결정함. 만족하지 않으면 다음 우선순위로 넘어감
