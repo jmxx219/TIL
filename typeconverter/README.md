@@ -11,6 +11,7 @@
   - [소개](#소개)
   - [포맷터를 지원하는 컨버전 서비스](#포맷터를-지원하는-컨버전-서비스)
   - [적용](#적용)
+  - [스프링이 제공하는 기본 포맷터](#스프링이-제공하는-기본-포맷터)
 
 <br/>
 
@@ -318,3 +319,26 @@ public interface Formatter<T> extends Printer<T>, Parser<T> {
   - 우선순위는 컨버터가 우선하기 때문에, 포맷터가 적용되지 않고 컨버터가 적용됨
 - `registry.addFormatter(new MyNumberFormatter())` 추가
   - 컨버전 서비스를 적용한 결과 `MyNumberFormatter`가 적용됨
+
+<br/>
+
+### 스프링이 제공하는 기본 포맷터
+
+- 스프링은 자바에서 기본으로 제공하는 타입들에 대해 수 많은 포맷터를 기본으로 제공함
+  - IDE에서 `Formatter` 인터페이스의 구현 클래스를 찾아볼 수 있음
+  - 포맷터를 기본 형식이 지정되어 있어, 객체의 각 필드마다 다른 형식으로 포맷을 지정하기에는 어려움
+- 스프링은 애노테이션 기반으로 원하는 형식을 지정해서 사용할 수 있는 포맷터 두 가지를 제공함
+  - `@NumberFormat`: 숫자 관련 형식 지정 포맷터 사용, `NumberFormatAnnotationFormatterFactory`
+  - `@DateTimeFormat`: 날짜 관련 형식 지정 포맷터 사용, `Jsr310DateTimeFormatAnnotationFormatterFactory`
+  ````java
+  @Data
+  static class Form {
+      @NumberFormat(pattern = "###,###")
+      private Integer number;
+  
+      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+      private LocalDateTime localDateTime;
+  }
+  ````
+  
+<br/>
