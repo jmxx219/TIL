@@ -10,6 +10,7 @@
 - [Formatter](#Formatter)
   - [소개](#소개)
   - [포맷터를 지원하는 컨버전 서비스](#포맷터를-지원하는-컨버전-서비스)
+  - [적용](#적용)
 
 <br/>
 
@@ -307,3 +308,13 @@ public interface Formatter<T> extends Printer<T>, Parser<T> {
     - `FormattingConversionService`에 기본적인 통화, 숫자 관련 몇가지 기본 포맷터를 추가해서 제공함
     - `FormattingConversionService`는 `ConversionService` 관련 기능을 상속받음
       - 컨버터와 포맷터 모두 등록 및 사용 가능
+
+<br/>
+
+### 적용
+
+`WebConfig`
+- 기존 컨버터는 주석 처리
+  - 우선순위는 컨버터가 우선하기 때문에, 포맷터가 적용되지 않고 컨버터가 적용됨
+- `registry.addFormatter(new MyNumberFormatter())` 추가
+  - 컨버전 서비스를 적용한 결과 `MyNumberFormatter`가 적용됨
