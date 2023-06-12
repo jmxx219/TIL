@@ -1,30 +1,43 @@
 # 상품 관리 서비스 
 
+### 목차
+- [요구사항 분석](#요구사항-분석)
+- [상품 서비스 HTML](#상품-서비스-HTML)
+- [상품 관리 기능](#상품-관리-기능)
+  - [BasicItemController](#BasicItemController)
+  - [PRG Post/Redirect/Get](#PRG-Post/Redirect/Get)
+  - [RedirectAttributes](#RedirectAttributes)
+- [Thymeleaf](#Thymeleaf)
+
+<br/>
 
 ## 요구사항 분석
 
-### 상품 도메인 모델
+**상품 도메인 모델**
 - 상품 ID
 - 상품명
 - 가격
 - 수량
 
-### 상품 관리 기능
+**상품 관리 기능**
 - 상품 목록
 - 상품 상세
 - 상품 등록
 - 상품 수정
 
+<br/>
+
 ### 서비스 제공 흐름
-요구사항이 정리되면 `디자이너`, `웹 퍼블리셔`, `백엔드 개발자`가 업무를 분담하여 진행
+- 요구사항이 정리되면 `디자이너`, `웹 퍼블리셔`, `백엔드 개발자`가 업무를 분담하여 진행
+
 > - `디자이너` : 요구사항에 맞게 디자인 후, `웹 퍼블리셔`에게 전달
 > - `웹 퍼블리셔` : 디자인을 기반으로 HTML, CSS를 만들어 `개발자`에게 제공
 > - `백엔드 개발자` : HTML 화면이 나오기 전까지는 시스템 설계 및 핵심 비즈니스 로직 구현, HTML이 나오면 뷰 템플릿으로 변환해서 웹 화면의 흐름을 제어
-
+  
+  
 **참고**
-
-웹 클라이언트 기술(`React`, `Vue.js`)을 사용할 경우, 웹 프론트엔드 개발자가 HTML을 동적으로 만드는 역할과 웹 화면의
-흐름을 담당함. 이 경우에 백엔드 개발자는 HTML 뷰 템플릿을 직접 만지지 않고 HTTP API를 통해 웹 클라이언트가 필요로 하는 데이터와 기능을 제공함.
+- 웹 클라이언트 기술(`React`, `Vue.js`)을 사용할 경우, 웹 프론트엔드 개발자가 HTML을 동적으로 만드는 역할과 웹 화면의 흐름을 담당함
+- 이 경우에 백엔드 개발자는 HTML 뷰 템플릿을 직접 만지지 않고 HTTP API를 통해 웹 클라이언트가 필요로 하는 데이터와 기능을 제공함.
 
 <br/>
 
@@ -40,8 +53,7 @@
 
 ## 상품 관리 기능
 
-### `BasicItemController`
-
+### BasicItemController
 - `@Controller` : 스프링빈 등록(`@Component`)
   - `ItemRepository`
     - `@Autowired`: 의존성 주입(생성자, setter, 필드)
@@ -92,6 +104,8 @@
   > HTML Form 전송은 `PUT`, `PATCH`를 지원 X, `GET`, `POST`만 사용 가능  
   >`PUT`, `PATCH`는 API 전송시에 사용함
 
+<br/>  
+
 ### PRG Post/Redirect/Get
 
 **상품 등록 처리 컨트롤러에서 문제점**
@@ -121,6 +135,8 @@ public String addItemV5(@ModelAttribute Item item) {
 ```
   - `redirect`에서 `+ item.getId()`처럼 URL에 변수를 더해서 사용하는 것은 URL 인코딩이 되지 않아 위험함
 
+<br/>
+
 ### RedirectAttributes
 
 URL 인코딩 및 `pathVarible`과 쿼리 파라미터까지 처리해줌
@@ -140,11 +156,8 @@ public String addItemV6(@ModelAttribute Item item, RedirectAttributes redirectAt
 
 <br/>
 
----
 
-<br/>
-
-# Thymeleaf
+## Thymeleaf
 
 `/resources/templates` 동적 리소스
 
@@ -163,7 +176,7 @@ JSP
 - HTML 파일을 직접 열면 `th:xxx`가 있어도 웹 브라우저는 무시함
   - HTML 파일 보기를 유지하면서 템플릿 기능도 함
 
-## 사용
+### 사용
 
 **선언** 
 - `<html xmlns:th="http://www.thymeleaf.org">`
