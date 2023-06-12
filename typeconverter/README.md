@@ -7,6 +7,9 @@
 - [Converter 적용](#Converter-적용)
   - [스프링](#스프링)
   - [view 템플릿](#view-템플릿)
+- [Formatter](#Formatter)
+  - [소개](#소개)
+  - [포맷터를 지원하는 컨버전 서비스](#포맷터를-지원하는-컨버전-서비스)
 
 <br/>
 
@@ -241,3 +244,66 @@ assertThat(ipPort).isEqualTo(new IpPort("127.0.0.1", 8080));
 
 <br/>
 
+## Formatter
+
+### 소개
+
+- `Converter`는 입력과 출력 타입에 제한이 없는 범용 타입 변환 기능을 제공함
+- 일반적인 웹 애플리케이션 환경에서 불린 타입을 숫자로 바꾸는 것과 같은 범용 기능 보다는, 문자를 다른 타입으로 변환하거나 다른 타입을 문자로 변환하는 상황이 대부분임
+- `Formatter`
+  - 객체를 특정한 포맷에 맞추어 문자로 출력하거나 또는 그 반대의 역할을 하는 것에 특화된 기능
+  - 컨버터의 특별한 버전
+
+**Converter vs Formatter**
+- `Converter`: 범용(객체 ➜ 객체)
+- `Formatter`: 문자에 틱화(객체 ➜ 문자, 문자 ➜ 객체) + 현지화(`Locale`)
+
+**Formatter 인터페이스**
+```java
+public interface Printer<T> {
+  String print(T object, Locale locale);
+}
+public interface Parser<T> {
+  T parse(String text, Locale locale) throws ParseException;
+}
+public interface Formatter<T> extends Printer<T>, Parser<T> {
+}
+```
+- `String print(T object, Locale locale)`: 객체를 문자로 변경 
+- `T parse(String text, Locale locale)`: 문자를 객체로 변경
+
+<br/>
+
+### 포맷터를 지원하는 컨버전 서비스
+
+- 컨버전 서비스에는 컨버터만 등록 가능(포맷터 등록 불가능)
+  - 포맷터는 `객체 ➜ 문자`, `문자 ➜ 객체`로 변환하는 특별한 컨버터임
+  - 포맷터를 지원하는 컨버전 서비스를 사용하면 컨버전 서비스에 포맷터를 추가할 수 있음
+    - 내부에서 어탭터 패턴을 사용해서 `Formatter`가 `Converter`처럼 동작하도록 지원함
+  - `FormattingConversionService`
+    - 포맷터를 지원하는 컨버전 서비스
+    ```java
+      @Test
+      void formattingConversionService() {
+          DefaultFormattingConversionService conversionService = new DefaultFormattingConversionService();
+  
+          // 컨버터 등록
+          conversionService.addConverter(new StringToIpPortConverter());
+          conversionService.addConverter(new IpPortToStringConverter());
+          // 포맷터 등록
+          conversionService.addFormatter(new MyNumberFormatter());
+  
+          // 컨버터 사용
+          IpPort ipPort = conversionService.convert("127.0.0.1:8080", IpPort.class);
+          assertThat(ipPort).isEqualTo(new IpPort("127.0.0.1", 8080));
+          // 포맷터 사용
+          assertThat(conversionService.convert(1000, String.class)).isEqualTo("1,000");
+          assertThat(conversionService.convert("1,000", Long.class)).isEqualTo(1000L);
+      }
+    ```
+    - `addConverter()`와 `addFormatter()`로 컨버터와 포맷터를 등록함
+    - `convert()`로 컨버터와 포맷터 모두 사용 가능
+  - `DefaultFormattingConversionService`
+    - `FormattingConversionService`에 기본적인 통화, 숫자 관련 몇가지 기본 포맷터를 추가해서 제공함
+    - `FormattingConversionService`는 `ConversionService` 관련 기능을 상속받음
+      - 컨버터와 포맷터 모두 등록 및 사용 가능
