@@ -1,7 +1,7 @@
 # 서블릿(Servlet)
 
 ### 목차
-- [서블릿](#서블릿)
+- [서블릿(Servlet)](#서블릿(Servlet))
     - [서블릿 환경 구성](#서블릿-환경-구성)
     - [HttpServletRequest](#HttpServletRequest)
     - [HTTP 요청 데이터](#HTTP-요청-데이터)
@@ -423,6 +423,8 @@ response.sendRedirect("/basic/hello-form.html");
 - Spring Boot는 DispatcherServlet을 서블릿으로 자동 등록하여 모든 경로에 대해 매핑함
 - 서블릿이 호출되면 `DispacherServlet.doDispatch()`가 호출됨
 
+<br/>
+
 ### HandleMapping과 HandlerAdapter
 - HandleMapping을 순서대로 실행해서, 핸들러(컨트롤러)를 찾음
     1. `RequestMappingHandlerMapping` : 애노테이션 기반의 컨트롤러인 @RequestMapping에서 사용
@@ -434,6 +436,8 @@ response.sendRedirect("/basic/hello-form.html");
     3. `SimpleControllerHandlerAdapter` : Controller 인터페이스(애노테이션 x, 과거에 사용) 처리
 - 핸들러 어댑터를 실행하고 결과를 반환
 
+<br/>
+
 ### ViewResolver
 
 - Spring Boot는 뷰 리졸버를 자동으로 등록함
@@ -441,6 +445,8 @@ response.sendRedirect("/basic/hello-form.html");
     2. `InternalResourceViewResolver` : JSP를 처리할 수 있는 뷰를
     - `Thymeleaf` 뷰 템플릿을 사용하면 `ThymeleafViewResolver`를 등록해야 함
 - `application.properties` 에 등록한 `spring.mvc.view.prefix`와 `spring.mvc.view.suffix` 설정 정보를 사용해서 등록
+
+<br/>
 
 ### @RequestMapping
 `RequestMappingHandlerMapping`, `RequestMappingHandlerAdapter`
@@ -471,6 +477,7 @@ response.sendRedirect("/basic/hello-form.html");
 - `ModelAndView`: 모델과 뷰 정보를 담아서 반환
     - Model 데이터를 추가할 때는 `addObject()`를 사용
 
+<br/>
 
 ### Spring MVC 개선
 
@@ -499,9 +506,6 @@ response.sendRedirect("/basic/hello-form.html");
   // @RequestMapping(value = "/new-form", method = RequestMethod.GET)
   @GetMapping("/new-form")
   ```
-
-
-
 
 
 
