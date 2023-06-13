@@ -3,6 +3,8 @@
 ### 목차
 - [HTML Form 전송 방식](#HTML-Form-전송-방식)
 - [서블릿과 파일 업로드](#서블릿과-파일-업로드)
+  - [파일 전송](#파일-전송)
+  - [파일 업로드](#파일-업로드)
 
 
 <br/>
@@ -36,6 +38,8 @@
 <br/>
 
 ## 서블릿과 파일 업로드
+
+### 파일 전송
 
 - `ServletUploadControllerV1`
   ````java
@@ -108,6 +112,53 @@
     - 하지만 `MultipartFile`가 더 편리하기 때문에 `MultipartHttpServletRequest`는 잘 사용하지 않음
 
 
+### 파일 업로드
+
+`application.properties`
+- `file.dir=파일 업로드 경로 설정`
+  - `file.dir=/Users/sonjimin/study/file/`
+- 파일 업로드를 위한 실제 파일이 저장되는 경로 설정
+- 설정할 때 마지막에 `/`(슬래시) 포함
+
+`ServletUploadControllerV2`
+- `application.properties`에서 설정한 `file.dir` 값 주입
+  ```java
+    @Value("${file.dir}")
+    private String fileDir;
+  ```
+- `Part`
+  - 서블릿이 제공하는 `Part`는 멀티파트 형식을 편리하게 읽을 수 있는 다양한 메서드를 제공함
+    ```java
+    for (Part part : parts) {
+        log.info("==== PART ====");
+        log.info("name={}", part.getName());
+        Collection<String> headerNames = part.getHeaderNames();
+        for (String headerName : headerNames) {
+            log.info("header {}: {}", headerName, part.getHeader(headerName));
+        }
+        // 편의 메서드
+        // Content-Disposition; filename
+        log.info("submittedFileName={}", part.getSubmittedFileName());
+        log.info("size={}", part.getSize()); // part body size
+  
+        // 데이터 읽기
+        InputStream inputStream = part.getInputStream();
+        String body = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+        log.info("body={}", body);
+  
+        // 파일에 저장하기
+        if(StringUtils.hasText(part.getSubmittedFileName())) {
+            String fullPath = fileDir + part.getSubmittedFileName();
+            log.info("파일 저장 fullPath={}", fullPath);
+            part.write(fullPath);
+        }
+    }
+    ```
+    - `part.getSubmittedFileName()`: 클라이언트가 전달한 파일명 
+    - `part.getInputStream()`: `Part`의 전송 데이터를 읽음
+    - `part.write(...)`: `Part`를 통해 전송된 데이터를 저장
+      - 설정한 파일 경로에 실제 파일이 저장됨
+  - `Part`는 편리하지만 `HttpServletRequest`를 사용해야 하고, 추가로 파일 부분만 구분하려면 여러가지 코드를 넣어야 함
 
 
 <br/>
