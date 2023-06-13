@@ -5,6 +5,7 @@
 - [서블릿과 파일 업로드](#서블릿과-파일-업로드)
   - [파일 전송](#파일-전송)
   - [파일 업로드](#파일-업로드)
+- [스프링과 파일 업로드](#스프링과-파일-업로드)
 
 
 <br/>
@@ -111,6 +112,7 @@
     - 이것을 이용하여 멀티파트와 관련된 여러가지 처리를 편리하게 할 수 있음
     - 하지만 `MultipartFile`가 더 편리하기 때문에 `MultipartHttpServletRequest`는 잘 사용하지 않음
 
+<br/>
 
 ### 파일 업로드
 
@@ -163,5 +165,33 @@
 
 <br/>
 
+## 스프링과 파일 업로드
 
+`MultipartFile`
+- 스프링은 `MultipartFile`이라는 인터페이스로 멀티파트 파일을 매우 편리하게 지원
+  ```java
+  @PostMapping("/upload")
+  public String saveFile(@RequestParam String itemName,
+                         @RequestParam MultipartFile file, HttpServletRequest request) throws IOException {
+      log.info("reqeust={}", request);
+      log.info("itemName={}", itemName);
+      log.info("MultipartFile={}", file);
+  
+      if(!file.isEmpty()) {
+          String fullPath = fileDir + file.getOriginalFilename();
+          log.info("파일 저장 fullPath={}", fullPath);
+          file.transferTo(new File(fullPath));
+      }
+  
+      return "upload-form";
+  }
+  ```
+  - `@RequestParam MultipartFile file`
+    - 업로드하는 HTML Form의 name에 맞추어 `@RequestParam`을 적용
+    - `@ModelAttribute`에서도 `MultipartFile`을 동일하게 사용 가능
+  - `file.getOriginalFilename()`: 업로드 파일명
+  - `file.transferTo(...)`: 파일 저장
+
+
+<br/>
 
