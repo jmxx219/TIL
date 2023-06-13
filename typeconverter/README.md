@@ -342,3 +342,15 @@ public interface Formatter<T> extends Printer<T>, Parser<T> {
   ````
   
 <br/>
+
+
+### 주의
+
+**메시지 컨버터(`HttpMessageConverter`)**
+- 컨버전 서비스가 적용되지 않음
+- `HttpMessageConverter`의 역할은 HTTP 메시지 바디의 내용을 객체로 변환하거나 객체를 HTTP 메시지 바디에 입력하는 것
+  - JSON을 객체로 변환하는 메시지 컨버터는 내부에서 Jackson 같은 라이브러리를 사용함
+  - 객체를 JSON으로 변환한다면 그 결과는 라이브러리에 달린 것
+  - JSON 결과로 만들어지는 숫자나 날짜 포맷을 변경하고 싶을 때, 해당 라이브러리가 제공하는 설정을 통해 포맷을 지정해야 함
+  - 이것은 컨버전 서비스와 전혀 관계가 없음
+- 컨버전 서비스는 `@RequestParam`, `@ModelAttribute`, `@PathVariable`, 뷰 템플릿 등에서 사용할 수 있음
