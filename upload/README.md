@@ -206,6 +206,8 @@
 - 첨부 파일을 업로드, 다운로드 기능
 - 업로드한 이미지를 웹 브라우저에서 확인
 
+<br/>
+
 ### 기능
 
 - `Item`
@@ -229,3 +231,30 @@
   - `@GetMapping("/images/{filename}")`
     - `<img>` 태그로 이미지를 조회할 때 사용
     - `UrlResource`로 이미지 파일을 읽어서 `@ResponseBody`로 이미지 바이너리 반환
+  - `@GetMapping("/attach/{itemId}")`
+    - 파일을 다운로드할 때 실행
+    - 파일 다운로드 시, 고객이 업로드한 파일 이름으로 다운로드하는 것이 좋음
+      - `Content-Disposition` 헤더에 `attachment; filename="업로드 파일명"` 값을 넣어줌
+      - `UriUtils.encode(uploadFileName, StandardCharsets.UTF_8)`: 파일 인코딩
+- `Form`
+  - `item-form.html`
+    ```html
+    <form th:action method="post" enctype="multipart/form-data">
+        <ul>
+            <li>상품명 <input type="text" name="itemName"></li>
+            <li>첨부파일<input type="file" name="attachFile" ></li>
+            <li>이미지 파일들<input type="file" multiple="multiple" name="imageFiles" ></li>
+        </ul>
+        <input type="submit"/>
+    </form>
+      ```
+    - `multiple="multiple"`: 다중 파일 업로드 옵션
+  - `item-view.html`
+    ```html
+    상품명: <span th:text="${item.itemName}">상품명</span><br/>
+    첨부파일: <a th:if="${item.attachFile}" th:href="|/attach/${item.id}|" th:text="${item.getAttachFile().getUploadFileName()}" /><br/>
+    <img th:each="imageFile : ${item.imageFiles}" th:src="|/images/${imageFile.getStoreFileName()}|" width="300" height="300"/>
+    ```
+    - 첨부파일은 링크로 걸어두고, 이미지는 `<img>` 태그를 반복해서 출력
+
+<br/>
