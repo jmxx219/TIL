@@ -223,4 +223,9 @@
   - `createStoreFileName()`: 서버 내부에서 관리하는 파일명은 유일한 이름을 생성하는 UUID를 사용함
   - `extractExt()`: 확장자를 별도 추출해서 서버 내부에서 관리하는 파일명에 붙여줌
 - `ItemController`
-  - 상품 등록 폼과 상품 조회 폼 추가
+  - `@GetMapping("/items/new")`: 상품 등록 폼
+  - `@PostMapping("/items/new")`: 폼의 데이터 저장 및 상품 조회 폼으로 리다이렉트
+  - `@GetMapping("/items/{id}")`: 상품 조회 폼
+  - `@GetMapping("/images/{filename}")`
+    - `<img>` 태그로 이미지를 조회할 때 사용
+    - `UrlResource`로 이미지 파일을 읽어서 `@ResponseBody`로 이미지 바이너리 반환

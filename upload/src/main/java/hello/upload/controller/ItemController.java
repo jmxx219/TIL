@@ -5,15 +5,19 @@ import hello.upload.domain.ItemRepository;
 import hello.upload.domain.UploadFile;
 import hello.upload.file.FileStore;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
@@ -52,4 +56,12 @@ public class ItemController {
         model.addAttribute("item", item);
         return "item-view";
     }
+
+    @ResponseBody
+    @GetMapping("/images/{filename}")
+    public Resource downloadImage(@PathVariable String filename) throws MalformedURLException {
+        // "file:/Users/../e101b2e0-89ce-49a7-9387.png"
+        return new UrlResource("file:" + fileStore.getFullPath(filename));
+    }
+
 }
