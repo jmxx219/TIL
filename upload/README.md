@@ -208,13 +208,19 @@
 
 ### 기능
 
-- `Item`: 상품 도메인
-- `ItemRepository`: 상품 리포지토리
-- `UploadFile`: 업로드 파일 정보 보관
+- `Item`
+  - 상품 도메인
+- `ItemRepository`
+  - 상품 리포지토리
+- `UploadFile`
+  - 업로드 파일 정보 보관
   - 고객이 업로드한 파일명으로 서버 내부에 파일을 저장할 경우, 다른 고객이 같은 파일 이름으로 업로드하면 충돌 발생
   - 저장할 파일명과 겹치지 않도록 내부에서 관리하는 별도의 파일명 필요 
     - `uploadFileName`: 고객이 업로드한 파일명
     - `storeFileName`: 서버 내부에서 관리하는 파일명
-- `FileStore`: 멀티파트 파일을 서버에 저장하는 역할 담당
+- `FileStore`
+  - 멀티파트 파일을 서버에 저장하는 역할 담당
   - `createStoreFileName()`: 서버 내부에서 관리하는 파일명은 유일한 이름을 생성하는 UUID를 사용함
   - `extractExt()`: 확장자를 별도 추출해서 서버 내부에서 관리하는 파일명에 붙여줌
+- `ItemController`
+  - 상품 등록 폼과 상품 조회 폼 추가
