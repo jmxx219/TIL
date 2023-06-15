@@ -3,7 +3,7 @@
 `/hello-spring`  스프링 입문
 
 `/basic-spring`
-[스프링 핵심 원리](https://github.com/jmxx219/Spring-Study/tree/main/basic-spring/README.md)
+[객체 지향 설계와 스프링](https://github.com/jmxx219/Spring-Study/tree/main/basic-spring/OOD.md), [스프링 핵심 원리](https://github.com/jmxx219/Spring-Study/tree/main/basic-spring/README.md)
 
 `/servlet`
 [서블릿, JSP, MVC 패턴](https://github.com/jmxx219/Spring-Study/blob/main/servlet/README.md)
