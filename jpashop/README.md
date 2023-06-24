@@ -71,9 +71,12 @@
 - 상품은 도서, 음반, 영화로 구분됨
 - 상품이라는 공통 속성을 사용하므로 상속 구조로 표현
 
-**회원 엔티티 분석**
+<br/>
 
+<details>
+<summary><b>회원 엔티티 분석<b/></summary>
 <img src="https://github.com/jmxx219/SpringJPA/assets/52346113/a39db14c-c1b9-4f3b-b0d0-f2ac35c84b50" width="500" height="300"/>
+<div>
 
 - 회원(`Member`)
   - 이름(`name`)과 임베디드 타입인 주소(`Address`), 그리고 주문(`orders`) 리스트를 가짐
@@ -96,10 +99,14 @@
 - 주소(`Address`)
   - 값 타입(임베디트 타입)
   - 회원과 배송에서 사용
+</div>
+</details>
+<br/>
 
-**회원 테이블 분석**
-
+<details>
+<summary><b>회원 테이블 분석<b/></summary>
 <img src="https://github.com/jmxx219/SpringJPA/assets/52346113/8925a53e-f730-4930-8782-f3fb707a3161" width="450" height="400"/>
+<div>
 
 - `MEMBER`
   - 회원 엔티티의 `Address` 임베디드 타입 정보가 회원테이블로 그대로 들어감
@@ -108,8 +115,14 @@
 - `ORDERS`
   - `ORDER`는 데이터베이스에서 `order by` 때문에 예약어로 잡고있는 경우가 많기 때문에 테이블명은 `ORDERS`를 많이 사용함
 
+</div>
+</details>
+<br/>
 
-**연관관계 매핑 분석**
+<details>
+<summary><b>연관관계 매핑 분석<b/></summary>
+<div>
+
 - 회원과 주문
   - 일대다, 다대일의 양방향 관계
   - 연관관계의 주인을 정할 때, 외래 키가 있는 주문을 연관관계의 주인으로 정하는 것이 좋음
@@ -127,7 +140,8 @@
 - 카테고리와 상품
   - `@ManyToMany`를 사용해서 매핑
   - 실무에서는 `@ManyToMany`를 사용하지 않도록 함
-
+</div>
+</details>
 <br/>
 
 > **외래키가 있는 곳을 연관관계의 주인으로 정하기**  
