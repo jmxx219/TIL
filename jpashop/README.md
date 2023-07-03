@@ -5,6 +5,7 @@
   - [요구사항 분석](#요구사항-분석)
   - [도메인 모델과 테이블 설계](#도메인-모델과-테이블-설계)
   - [엔티티 클래스 개발](#엔티티-클래스-개발)
+  - [엔티티 설계 시 주의점](#엔티티-설계-시-주의점)
 
 
 <br/>
@@ -75,7 +76,7 @@
 <br/>
 
 <details>
-<summary><b>회원 엔티티 분석<b/></summary>
+<summary><b>회원 엔티티 분석</b></summary>
 <img src="https://github.com/jmxx219/SpringJPA/assets/52346113/a39db14c-c1b9-4f3b-b0d0-f2ac35c84b50" width="500" height="300"/>
 <div>
 
@@ -104,7 +105,7 @@
 </details>
 
 <details>
-<summary><b>회원 테이블 분석<b/></summary>
+<summary><b>회원 테이블 분석</b></summary>
 <img src="https://github.com/jmxx219/SpringJPA/assets/52346113/8925a53e-f730-4930-8782-f3fb707a3161" width="450" height="400"/>
 <div>
 
@@ -119,7 +120,7 @@
 </details>
 
 <details>
-<summary><b>연관관계 매핑 분석<b/></summary>
+<summary><b>연관관계 매핑 분석</b></summary>
 <div>
 
 - 회원과 주문
@@ -175,3 +176,43 @@
 - JPA 스펙상 엔티티나 임베디드 타입(`@Embeddable`)은 자바 기본 생성자를 `public` 또는 `protected`로 설정해야 함
   - `public` 보다 `protected`로 설정하는 것이 그나마 더 안전함
   - JPA 구현 라이브러리가 객체를 생성할 때 리플랙션 같은 기술을 사용할 수 있도록 지원해야 하기 때문에 이러한 제약을 둠 
+
+<br/>
+
+### 엔티티 설계 시 주의점
+
+**엔티티에는 Setter를 사용하지 않기**
+- Setter가 열려있으면 변경 포인트가 너무 많아 유지보수하기 어려움
+- 나중에 리팩토링으로 Setter 제거
+
+**모든 연관관계는 지연로딩으로 설정**
+- 즉시로딩(`EAGER`)은 예측이 어렵고, 어떤 SQL이 실행될지 추적하기 어려움
+  - JPQL을 실행할 때 N+1 문제가 자주 발생함
+- 실무에서 모든 연관관계는 지연로딩(`LAZY`)으로 설정해야 함
+  - 연관된 엔티티를 함께 DB에서 조회해야 하면, fetch join 또는 엔티티 그래프 기능을 사용함
+- @XToOne(`@OneToOne`, `@ManyToOne`) 관계는 기본이 즉시로딩이므로 직접 지연로딩으로 설정해야 함
+
+**컬렉션은 필드에서 초기화하기**
+- 컬렉션은 필드에서 바로 초기화하는 것이 안전함
+- `null` 문제에 안전함
+- 하이버네이트는 엔티티를 영속화할 때, 컬렉션을 감싸서 하이버네이트가 제공하는 내장 컬렉션으로 변경함
+  - 만약 getOrders()처럼 임의의 메서드에서 컬렉션을 잘못 생성하면 하이버네이트 내부 매커니즘에 문제가 발생할 수 있음
+  - 따라서 필드레벨에서 생성하는 것이 가장 안전하고, 코드도 간결해짐
+  ```java
+  Member member = new Member();
+  System.out.println(member.getOrders().getClass());
+  em.persist(member);
+  System.out.println(member.getOrders().getClass());
+  
+  //출력 결과
+  class java.util.ArrayList
+  class org.hibernate.collection.internal.PersistentBag
+  ```
+  
+**테이블, 컬럼명 생성 전략**
+- 스프링 부트에서 하이버네이트 기본 매핑 전략을 변경해서 실제 테이블 필드명은 다름
+  - 하이버네이트 기존 구현: 엔티티의 필드명을 그대로 테이블의 컬럼명으로 사용(`SpringPhysicalNamingStrategy`)
+- 스프링 부트 신규 설정(`엔티티(필드)` ➜ `테이블(컬럼)`)
+  1. 카멜 케이스 ➜ 언더스코어
+  2. `.`(점) ➜ `_`(언더스코어)
+  3. 대문자 ➜ 소문자
