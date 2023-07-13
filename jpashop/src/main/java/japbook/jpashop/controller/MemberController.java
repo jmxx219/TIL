@@ -3,6 +3,7 @@ package japbook.jpashop.controller;
 import japbook.jpashop.domain.Address;
 import japbook.jpashop.domain.Member;
 import japbook.jpashop.service.MemberService;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -39,4 +40,12 @@ public class MemberController {
         memberService.join(member);
         return "redirect:/";
     }
+
+    @GetMapping("/members")
+    public String list(Model model) {
+        model.addAttribute("members", memberService.findMembers());
+        return "members/memberList";
+    }
+
+
 }
