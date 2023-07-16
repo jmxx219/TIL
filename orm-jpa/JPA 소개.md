@@ -3,9 +3,9 @@
 ### 목차
 - [SQL 중심적인 개발의 문제점](#SQL-중심적인-개발의-문제점)
 - [JPA](#JPA)
-  - [ORM이란?](#ORM이란?)
+  - [ORM이란?](#ORM이란)
   - [JPA 동작](#JPA-동작)
-  - [JPA 소개](#JPA-소개)
+  - [JPA 소개](###JPA-소개)
   - [JPA를 사용해야하는 이유](#JPA를-사용해야하는-이유)
 
 <br/>
@@ -201,7 +201,7 @@
 > Java Persistence API로, 자바 진영의 ORM 기술 표준임
   
   
-### ORM이란?
+### ORM이란
 - Object-Relational-Mapping(객체 관계 매핑)
   - 객체는 객체대로 설계하고, 관계형 DB는 관계형 DB대로 설계함
   - ORM 프레임워크가 중간에서 매핑해줌
@@ -288,14 +288,14 @@
   member.setTeam(team);
   jpa.persist(member);
   ```
-- JPA와 [객체 그래프 탐색](#5.-객체-그래프-탐색)
+- JPA와 [객체 그래프 탐색](#5-객체-그래프-탐색)
   - 엔티티 계층을 신뢰하고 객체 그래프 탐색을 할 수 있음
   - JPA를 통해 객체를 가져오는 경우, 지연로딩을 사용해서 사용하는 시점에 SQL이 호출되어 데이터가 채워짐
   ```java
   Member member = jpa.find(Member.class, memberId);
   Team team = member.getTeam();
   ```
-- JPA와 [비교하기](#비교하기에서의-차이)
+- JPA와 [비교하기](#6-비교하기에서의-차이)
   - JPA에서 동일한 트랜잭션에 조회한 엔티티는 같음을 보장함(컬렉션과 동일)
   
 #### 5. 성능 
