@@ -2,3 +2,4 @@
 
 ### 목차
 - [JPA 소개](https://github.com/jmxx219/SpringJPA/blob/main/orm-jpa/JPA%20%EC%86%8C%EA%B0%9C.md)
+- [JPA 시작](https://github.com/jmxx219/SpringJPA/blob/main/orm-jpa/ex1-hello-jpa/README.md)
