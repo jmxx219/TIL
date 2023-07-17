@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8c6515a6-3615-4879-b462-39e7a85ea4ca" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../orm-jpa/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../orm-jpa/ex1-hello-jpa/src/main/java/hellojpa/JpaMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/../orm-jpa/ex1-hello-jpa/src/main/java/hellojpa/JpaMain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../orm-jpa/ex1-hello-jpa/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../orm-jpa/ex1-hello-jpa/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../orm-jpa/영속성 관리.md" beforeDir="false" afterPath="$PROJECT_DIR$/../orm-jpa/영속성 관리.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
