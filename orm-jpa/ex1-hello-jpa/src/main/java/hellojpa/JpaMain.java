@@ -1,5 +1,6 @@
 package hellojpa;
 
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -16,6 +17,31 @@ public class JpaMain {
         tx.begin();
 
         try {
+            // 저장
+            Team team = new Team();
+            team.setName("TeamA");
+//            team.getMembers().add(member); // 역방향(연관관계의 주인이 아닌 방향)만 연관관계 설정하면 값이 제대로 안들어감
+            em.persist(team);
+
+
+            Member member = new Member();
+            member.setUserName("member1");
+//            member.setTeam(team);
+//            member.setTeamId(team.getId());
+//            member.changeTeam(team);
+            em.persist(member);
+
+            team.addMember(member);
+
+            em.flush();
+            em.clear();
+
+//            Member findMember = em.find(Member.class, member.getId());
+//            List<Member> members = findMember.getTeam().getMembers();
+
+//            Long teamId = findMember.getTeamId();
+//            Team findTeam = em.find(Team.class, teamId);
+//            Team findTeam = member.getTeam();
 
             /*
             // 비영속
