@@ -17,7 +17,21 @@ public class JpaMain {
         tx.begin();
 
         try {
-            // 저장
+            Movie movie = new Movie();
+            movie.setDirector("A");
+            movie.setActor("BB");
+            movie.setName("엘리멘탈");
+            movie.setPrice(10000);
+
+            em.persist(movie);
+
+            em.flush();
+            em.clear();
+
+            Movie findMovie = em.find(Movie.class, movie.getId());
+            System.out.println("findMovie = " + findMovie);
+
+            /*
             Team team = new Team();
             team.setName("TeamA");
 //            team.getMembers().add(member); // 역방향(연관관계의 주인이 아닌 방향)만 연관관계 설정하면 값이 제대로 안들어감
@@ -35,13 +49,16 @@ public class JpaMain {
 
             em.flush();
             em.clear();
+            */
 
-//            Member findMember = em.find(Member.class, member.getId());
-//            List<Member> members = findMember.getTeam().getMembers();
+            /*
+            Member findMember = em.find(Member.class, member.getId());
+            List<Member> members = findMember.getTeam().getMembers();
 
-//            Long teamId = findMember.getTeamId();
-//            Team findTeam = em.find(Team.class, teamId);
-//            Team findTeam = member.getTeam();
+            Long teamId = findMember.getTeamId();
+            Team findTeam = em.find(Team.class, teamId);
+            Team findTeam = member.getTeam();
+            */
 
             /*
             // 비영속
@@ -67,6 +84,7 @@ public class JpaMain {
 //            System.out.println("findMember.id " + findMember.getId());
 //            System.out.println("findMember.name " + findMember.getName());
             */
+
             tx.commit(); // 커밋하는 시점에 쿼리가 날아감
         } catch (Exception e) {
             tx.rollback();
