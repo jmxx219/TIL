@@ -1,6 +1,5 @@
 package hellojpa;
 
-import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -17,6 +16,25 @@ public class JpaMain {
         tx.begin();
 
         try {
+
+            Member member = new Member();
+            member.setUserName("hello");
+
+            em.persist(member);
+
+            em.flush();
+            em.clear();
+//            Member findMember = em.find(Member.class, member.getId());
+            Member findMember = em.getReference(Member.class, member.getId());
+            System.out.println("findMember = " + findMember.getClass());
+            System.out.println("findMember.id = " + findMember.getId());
+            System.out.println("findMember.userName = " + findMember.getUserName());
+
+
+//            printMember(findMember);
+//            printMemberAndTeam(findMember);
+
+            /*
             Movie movie = new Movie();
             movie.setDirector("A");
             movie.setActor("BB");
@@ -30,6 +48,7 @@ public class JpaMain {
 
             Movie findMovie = em.find(Movie.class, movie.getId());
             System.out.println("findMovie = " + findMovie);
+            */
 
             /*
             Team team = new Team();
@@ -88,10 +107,26 @@ public class JpaMain {
             tx.commit(); // 커밋하는 시점에 쿼리가 날아감
         } catch (Exception e) {
             tx.rollback();
+            e.printStackTrace();
         } finally {
             em.close();
         }
 
         emf.close();
+    }
+
+    // 멤버만 출력하는데, 멤머를 조회할 때 팀도 함께 조회되면 낭비
+    private static void printMember(Member member) {
+        String userName = member.getUserName();
+        System.out.println("userName = " + userName);
+    }
+
+    // 멤버와 팀을 함께 출력
+    private static void printMemberAndTeam(Member member) {
+        String userName = member.getUserName();
+        System.out.println("userName = " + userName);
+
+        Team team = member.getTeam();
+        System.out.println("team = " + team.getName());
     }
 }
