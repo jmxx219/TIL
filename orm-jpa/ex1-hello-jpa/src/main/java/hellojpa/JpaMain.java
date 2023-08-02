@@ -1,5 +1,6 @@
 package hellojpa;
 
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -18,6 +19,34 @@ public class JpaMain {
         try {
 
             Member member = new Member();
+            member.setUserName("member1");
+            member.setHomeAddress(new Address("homeCity", "street1", "1000"));
+
+            member.getFavoriteFoods().add("치킨");
+            member.getFavoriteFoods().add("피자");
+            member.getFavoriteFoods().add("족발");
+
+//            member.getAddressHistory().add(new Address("old1", "street1", "1000"));
+//            member.getAddressHistory().add(new Address("old2", "street1", "1000"));
+            member.getAddressHistory().add(new AddressEntity("old1", "street1", "1000"));
+            member.getAddressHistory().add(new AddressEntity("old2", "street1", "1000"));
+
+
+            em.persist(member);
+
+            em.flush();
+            em.clear();
+
+            System.out.println("======== SEARCH START ========");
+            Member findMember = em.find(Member.class, member.getId());
+
+//            List<Address> addressHistory = findMember.getAddressHistory();
+//            for (Address address : addressHistory) {
+//                System.out.println("address.city = " + address.getCity());
+//            }
+
+            /*
+            Member member = new Member();
             member.setUserName("hello");
 
             em.persist(member);
@@ -29,7 +58,7 @@ public class JpaMain {
             System.out.println("findMember = " + findMember.getClass());
             System.out.println("findMember.id = " + findMember.getId());
             System.out.println("findMember.userName = " + findMember.getUserName());
-
+            */
 
 //            printMember(findMember);
 //            printMemberAndTeam(findMember);
