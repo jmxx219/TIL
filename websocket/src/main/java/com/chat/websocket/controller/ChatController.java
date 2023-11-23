@@ -1,6 +1,6 @@
 package com.chat.websocket.controller;
 
-import com.chat.websocket.ChatService;
+import com.chat.websocket.service.ChatService;
 import com.chat.websocket.domain.ChatRoom;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

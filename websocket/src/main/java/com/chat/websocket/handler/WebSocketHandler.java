@@ -1,11 +1,10 @@
 package com.chat.websocket.handler;
 
-import com.chat.websocket.ChatService;
+import com.chat.websocket.service.ChatService;
 import com.chat.websocket.domain.ChatMessage;
 import com.chat.websocket.domain.ChatRoom;
 import com.chat.websocket.domain.MessageType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;

@@ -1,16 +1,12 @@
-package com.chat.websocket;
+package com.chat.websocketstomp.service;
 
-import com.chat.websocket.domain.ChatMessage;
-import com.chat.websocket.domain.ChatRoom;
+import com.chat.websocketstomp.dao.ChatRoomRepository;
+import com.chat.websocketstomp.domain.ChatMessage;
+import com.chat.websocketstomp.domain.ChatRoom;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,22 +19,7 @@ import org.springframework.web.socket.WebSocketSession;
 public class ChatService {
 
     private final ObjectMapper objectMapper;
-    private Map<String, ChatRoom> chatRooms;
-
-    @PostConstruct
-    private void init() {
-        chatRooms = new LinkedHashMap<>();
-    }
-
-    public ChatRoom createRoom(String roomName) {
-        String roomId = UUID.randomUUID().toString();
-        ChatRoom chatRoom = ChatRoom.builder()
-                .roomId(roomId)
-                .name(roomName)
-                .build();
-        chatRooms.put(roomId, chatRoom);
-        return chatRoom;
-    }
+    private final ChatRoomRepository chatRoomRepository;
 
     public <T> void sendMessage(WebSocketSession receiver, ChatMessage message) {
         try {
@@ -51,11 +32,23 @@ public class ChatService {
         }
     }
 
+    public ChatRoom createChatRoom(String roomName) {
+        String roomId = UUID.randomUUID().toString();
+        ChatRoom chatRoom = ChatRoom.builder()
+                .roomId(roomId)
+                .name(roomName)
+                .build();
+        chatRoomRepository.save(roomId, chatRoom);
+        return chatRoom;
+    }
+
     public List<ChatRoom> findAllRoom() {
-        return new ArrayList<>(chatRooms.values());
+        return chatRoomRepository.findAllRoom();
     }
 
     public ChatRoom findRoomById(String roomId) {
-        return chatRooms.get(roomId);
+        return chatRoomRepository.findRoomById(roomId);
     }
+
+
 }
