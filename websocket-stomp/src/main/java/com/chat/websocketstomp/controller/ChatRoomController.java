@@ -15,24 +15,35 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/chat/room")
+@RequestMapping("/chat")
 public class ChatRoomController {
 
     private final ChatService chatService;
 
-    @PostMapping
-    @ResponseBody
-    public ChatRoom createRoom(@RequestParam String roomName) {
-        return chatService.createChatRoom(roomName);
+    @GetMapping("/room")
+    public String rooms(Model model) {
+        return "/chat/room";
     }
 
-    @GetMapping
+    @GetMapping("/room/enter/{roomId}")
+    public String roomDetail(Model model, @PathVariable String roomId) {
+        model.addAttribute("roomId", roomId);
+        return "/chat/roomdetail";
+    }
+
+    @PostMapping("/room")
+    @ResponseBody
+    public ChatRoom createRoom(@RequestParam String name) {
+        return chatService.createChatRoom(name);
+    }
+
+    @GetMapping("/rooms")
     @ResponseBody
     public List<ChatRoom> getRooms() {
         return chatService.findAllRoom();
     }
 
-    @GetMapping("/{roomId}")
+    @GetMapping("/room/{roomId}")
     @ResponseBody
     public ChatRoom getRoom(@PathVariable String roomId) {
         return chatService.findRoomById(roomId);
