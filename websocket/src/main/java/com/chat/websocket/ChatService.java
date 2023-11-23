@@ -4,10 +4,12 @@ import com.chat.websocket.domain.ChatMessage;
 import com.chat.websocket.domain.ChatRoom;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +52,7 @@ public class ChatService {
     }
 
     public List<ChatRoom> findAllRoom() {
-        return (List<ChatRoom>) chatRooms.values();
+        return new ArrayList<>(chatRooms.values());
     }
 
     public ChatRoom findRoomById(String roomId) {
