@@ -9,31 +9,35 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Message {
-    private String type;
+public class ChatMessage {
+    public MessageType type;
     private String sender;
-    private String receiver;
-    private Object data;
+    private String roomId;
+    private String message;
 
     public void setSender(String sender) {
         this.sender = sender;
     }
 
     public void newConnect() {
-        this.type = "new";
+        this.type = MessageType.ENTER;
     }
 
     public void closeConnect() {
-        this.type = "close";
+        this.type = MessageType.CLOSE;
+    }
+
+    public void setEnterMessage() {
+        this.message = "[ " + MessageType.ENTER + " ]" + this.message;
     }
 
     @Override
     public String toString() {
-        return "Message{" +
-                "type='" + type + '\'' +
+        return "ChatMessage{" +
+                "type=" + type +
                 ", sender='" + sender + '\'' +
-                ", receiver='" + receiver + '\'' +
-                ", data=" + data +
+                ", roomId='" + roomId + '\'' +
+                ", message='" + message + '\'' +
                 '}';
     }
 }

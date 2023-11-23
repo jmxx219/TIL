@@ -1,9 +1,13 @@
 package com.chat.websocket.handler;
 
-import com.chat.websocket.domain.Message;
+import com.chat.websocket.ChatService;
+import com.chat.websocket.domain.ChatMessage;
+import com.chat.websocket.domain.ChatRoom;
+import com.chat.websocket.domain.MessageType;
 import com.google.gson.Gson;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -13,8 +17,11 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class WebSocketHandler extends TextWebSocketHandler {
 
+    private final Gson gson = new Gson();
+    private final ChatService chatService;
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
     /**
@@ -26,19 +33,19 @@ public class WebSocketHandler extends TextWebSocketHandler {
         var sessionId = session.getId();
         sessions.put(sessionId, session); // 세션에 저장
 
-        Message message = Message.builder().sender(sessionId).receiver("all").build();
-        message.newConnect();
-
-        sessions.values().forEach(s -> { // 모든 세션에 알림
-            try {
-                if(!s.getId().equals(sessionId)) {
-                    s.sendMessage(new TextMessage(message.toString()));
-                }
-            }
-            catch (Exception e) {
-                // TODO: throw
-            }
-        });
+//        ChatMessage message = ChatMessage.builder().sender(sessionId).build();
+//        message.newConnect();
+//
+//        sessions.values().forEach(s -> { // 모든 세션에 알림
+//            try {
+//                if(!s.getId().equals(sessionId)) {
+//                    s.sendMessage(new TextMessage(message.toString()));
+//                }
+//            }
+//            catch (Exception e) {
+//                // TODO: throw
+//            }
+//        });
     }
 
     /**
@@ -46,19 +53,22 @@ public class WebSocketHandler extends TextWebSocketHandler {
      */
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage textMessage) throws Exception {
-        Message message = getObject(textMessage.getPayload());
-        message.setSender(session.getId());
-// 메시지를 받을 타켓을 찾음
-        WebSocketSession receiver = sessions.get(message.getReceiver());
-        if(receiver != null && receiver.isOpen()) { // 타켓이 존재하고, 연결된 상태라면 메세지 전송
-            receiver.sendMessage(new TextMessage(message.toString()));
-        }
-    }
+        ChatMessage chatMessage = gson.fromJson(textMessage.getPayload(), ChatMessage.class);
+        ChatRoom chatRoom = chatService.findRoomById(chatMessage.getRoomId());
 
-    private Message getObject(String textMessage){
-        Gson gson = new Gson();
-        Message message = gson.fromJson(textMessage, Message.class);
-        return message;
+        log.info("chatMessage {}", chatMessage.toString());
+
+        if(chatRoom != null) {
+            if (chatMessage.getType().equals(MessageType.ENTER)) {
+                chatRoom.addSession(session);
+                chatMessage.setEnterMessage();
+            }
+            chatRoom.getSessions().parallelStream().forEach(s -> {
+                if(!s.getId().equals(session.getId())) {
+                    chatService.sendMessage(s, chatMessage);
+                }
+            });
+        }
     }
 
     /**
@@ -70,7 +80,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         sessions.remove(sessionId);
 
-        final Message message = new Message();
+        final ChatMessage message = new ChatMessage();
         message.closeConnect();
         message.setSender(sessionId);
 
