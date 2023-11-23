@@ -4,6 +4,7 @@ import com.chat.websocket.ChatService;
 import com.chat.websocket.domain.ChatMessage;
 import com.chat.websocket.domain.ChatRoom;
 import com.chat.websocket.domain.MessageType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,7 +21,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @RequiredArgsConstructor
 public class WebSocketHandler extends TextWebSocketHandler {
 
-    private final Gson gson = new Gson();
+    private final ObjectMapper objectMapper;
     private final ChatService chatService;
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
@@ -29,7 +30,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
      */
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        log.info("[afterConnectionEstablished] " + session.getId());
+        log.info("[연결 완료] " + session.getId());
         var sessionId = session.getId();
         sessions.put(sessionId, session); // 세션에 저장
 
@@ -53,10 +54,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
      */
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage textMessage) throws Exception {
-        ChatMessage chatMessage = gson.fromJson(textMessage.getPayload(), ChatMessage.class);
+        ChatMessage chatMessage = objectMapper.readValue(textMessage.getPayload(), ChatMessage.class);
         ChatRoom chatRoom = chatService.findRoomById(chatMessage.getRoomId());
-
-        log.info("chatMessage {}", chatMessage.toString());
 
         if(chatRoom != null) {
             if (chatMessage.getType().equals(MessageType.ENTER)) {
@@ -76,22 +75,22 @@ public class WebSocketHandler extends TextWebSocketHandler {
      */
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        log.info("[연결 완료] " + session.getId());
         var sessionId = session.getId();
-
         sessions.remove(sessionId);
 
-        final ChatMessage message = new ChatMessage();
-        message.closeConnect();
-        message.setSender(sessionId);
-
-        sessions.values().forEach(s -> {
-            try {
-                s.sendMessage(new TextMessage(message.toString()));
-            }
-            catch (Exception e) {
-                // TODO: throw
-            }
-        });
+//        final ChatMessage message = new ChatMessage();
+//        message.closeConnect();
+//        message.setSender(sessionId);
+//
+//        sessions.values().forEach(s -> {
+//            try {
+//                s.sendMessage(new TextMessage(message.toString()));
+//            }
+//            catch (Exception e) {
+//                // TODO: throw
+//            }
+//        });
     }
 
     /**
