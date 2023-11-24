@@ -12,6 +12,6 @@ public class ChatMessage {
     private String message;
 
     public void setEnterMessage() {
-        this.message = "[ " + MessageType.ENTER + " ] " + this.sender;
+        this.message = this.sender + "님이 입장하셨습니다.";
     }
 }
