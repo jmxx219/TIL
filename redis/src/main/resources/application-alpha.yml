@@ -1,0 +1,7 @@
+# aplha 서버용 환경 서정 바파일
+spring:
+  profiles:
+    active: alpha
+  redis:
+    host: redis가 설치된 서버 호스트
+    port: redis가 설치된 서버 포트
