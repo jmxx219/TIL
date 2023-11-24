@@ -12,6 +12,7 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
+//@EnableRedisRepositories
 public class RedisConfig {
 
     @Value("${spring.redis.host}")
@@ -30,6 +31,7 @@ public class RedisConfig {
         return new LettuceConnectionFactory(redisConfiguration);
     }
 
+
     /**
      * redis의 pub/sub 메시지를 처리하는 listener 설정
      */
@@ -44,9 +46,9 @@ public class RedisConfig {
      * 어플리케이션에서 사용할 redisTemplate 설정
      */
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+    public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(connectionFactory);
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
         return redisTemplate;
