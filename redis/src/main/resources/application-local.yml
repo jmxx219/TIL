@@ -2,5 +2,9 @@ spring:
   profiles:
     active: local
   redis:
-    host: localhost
+    pool:
+      min-idle: 0
+      max-idle: 8
+      max-active: 8
+    host: 127.0.0.1
     port: 6379
