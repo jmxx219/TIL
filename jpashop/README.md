@@ -589,7 +589,7 @@
 
 ## API 개발
 
-### API 기본
+### 0. API 기본
 
 `MemberApiController`
 
@@ -627,8 +627,84 @@
 2. 응답 값으로 엔티티가 아닌 별도의 DTO 사용
    - 엔티티를 DTO로 변환해서 반환하기 때문에 엔티티가 변해도 API 스펙이 변경되지 않음
    - 추가로 `Result` 클래스로 컬렉션을 감싸서 향후 필요한 필드를 추가할 수 있음
+   
+<br/>
 
+> 지연 로딩으로 인해 발생하는 성능 문제를 단계적으로 해결하기
 
+<br/>
+
+### 1. 지연 로딩과 조회 성능 최적화
+
+`OrderSimpleApiController`
+
+#### 주문 내역 조회
+
+- Entity 직접 노출시킬 경우, 양방향 관계에서 문제 발생
+  - 주문 내역 조회를 위해 `Order`를 조회하게 되면 무한루프에 빠지게 됨
+    - `Order`와 `Member`는 다대일 관계이고, `Member`와 `Order`는 일대다 관계
+    - 결국 `Order → Member → Order → ... `를 무한 반복하게 됨
+- 이렇게 양방향 연관관계 무한 순회를 방지하기 위한 해결책으로 `@JsonIgnore`를 사용할 수 있음
+  - 다시 양방향이 걸리는 부분을 모두 `@JsonIgnore` 처리를 함
+    ```java
+    /* Member.java */
+    public class Member {
+        ...
+        @JsonIgnore
+        @OneToMany(mappedBy = "member")
+        private List<Order> orders = new ArrayList<>();
+    }
+    ```
+- 하지만 이 경우에도 `org.hibernate.proxy.pojo.bytebuddy.ByteBuddyInterceptor`에서 `Type definition` 에러가 발생함
+  ```java
+  public class Order {
+      ...
+      @ManyToOne(fetch = FetchType.LAZY)
+      @JoinColumn(name = "member_id")
+      private Member member; // member = new ByteBuddyInterceptor();
+  }
+  ```
+  - `Order`에서 `Member`에 대한 전략이 `FetchType.LAZY`로 지연 로딩으로 되어 있음
+    - 지연 로딩은 실제 엔티티가 아닌 프록시 객체를 가지기 때문에 실제 `Member` 객체를 가지고 있지 않음
+  - 이때 Json 라이브러리가 `Order`를 `Json`으로 변환시킬 때, `member`가 순수한 `Member` 클래스가 아니기 때문에 변환시켜 줄 수 없다는 문제가 발생함
+    - 기본적으로 `jackson` 라이브러리는 프록시 객체를 Json으로 어떻게 생성해야 하는지 모름 → **예외 발생**
+- `Hibernate5Module`을 스프링 빈으로 추가하여 Json 라이브러리가 아무것도 하지 않도록 명시해주면 해결할 수 있음
+  ```java
+  /** build.gradle **/
+  implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+  ```
+  - 스프링 부트 3.0 이상의 경우 `Hibernate5JakartaModule`을 등록해야 함
+  ```java
+  public class JpashopApplication {
+      @Bean
+      Hibernate5Module hibernate5Module() {
+          return new Hibernate5Module();
+      }
+  }
+  ```
+  - 기본적으로 초기화된 프록시 객체만 노출하고, 초기화되지 않은 프록시 객체는 노출하지 않음
+  ```java
+  public class JpashopApplication {
+      @Bean
+      Hibernate5Module hibernate5Module() {
+          Hibernate5Module hibernate5Module = new Hibernate5Module(); //강제 지연 로딩 설정
+          hibernate5Module.configure(Hibernate5Module.Feature.FORCE_LAZY_LOADING, true);
+          return hibernate5Module;
+      }
+  }
+  ```
+  - 다음과 같이 설정하면 강제로 지연로딩이 가능해짐
+  - 해당 옵션을 키게 될 경우 양방향 연관관계를 계속 로딩(`order → member → orders`)되기 때문에 `@JsonIgnore` 옵션을 한 곳에 설정 해주어야 함
+
+<br/>
+
+#### ❗ 중요 
+- Entity를 직접 노출시킬 경우는 위의 방식처럼 사용이 가능함(단, 한 곳은 무조건 `@JsonIgnore` 처리)
+- 하지만 Entity를 API 응답으로 외부에 직접 노출하는 방법은 좋지 않음
+- 따라서 `Hibernate5Module`을 사용하기 보다는 `DTO`로 변환해서 반환하는 것이 더 좋은 방법!
+- 또한, 지연 로딩을 피하기 위해서 즉시 로딩으로 설정하면 절대 안됨
+  - 즉시 로딩 때문에 연관관계가 필요없는 경우에도 데이터를 항상 조회해서 성능문제가 발생할 수 있고, 성능 튜닝이 매우 어려워짐
+  - 그래서 항상 지연 로딩을 기본으로 하고, 성능 최적화가 필요한 경우에는 `fetch join`을 사용하기
 
 
 
