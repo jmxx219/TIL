@@ -573,3 +573,81 @@
 
 <br/>
 <br/>
+
+
+## OSIV와 성능 최적화
+
+> OSIV는 기본적으로 JPA가 언제 DB 커넥션을 가져오고 반환하는지에 관한 문제
+
+- Open Session In View: 하이버네이트
+  - JPA에 EntityManager가 있다면 하이버네이트에는 세션이 존재함
+- Open EntityManager In View: JPA
+  - 관례상 OSIV라고 부름
+
+
+<br/>
+
+### OSIV ON
+
+<img width="500" src="https://github.com/jmxx219/SpringJPA/assets/52346113/43d2ea8c-2c98-4890-afb4-276f10b0fb94">
+<br/>
+
+- `spring.jpa.open-in-view`:`true`
+    - 스프링에서는 기본적으로 OSIV가 활성화되어 있음
+    - 애플리케이션 시작 시점에 warn 로그를 남김
+        ```java
+        WARN 85220 --- [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+        ```
+- OSIV 전략은 트랜잭션 시작처럼 최초 데이터베이스 커넥션 시작 시점부터 API 응답이 끝날 때 까지 영속성 컨텍스트와 데이터베이스 커넥션을 유지함
+  - JPA는 서비스 계층에서 DB 트랜잭션을 시작할 때, 영속성 컨텍스트가 DB 커넥션을 가져옴
+  - 이때 OSIV가 켜져있으면 `@Transactional` 메서드를 벗어나도 커넥션을 계속 유지함
+    - API 응답이 나가고 화면이 렌더링 될 때까지 영속성 컨텍스트를 가지고 있음
+  - 지금까지 View Template이나 API 컨트롤러에서 지연 로딩으로 데이터를 가져올 수 있었던 이유도 DB 커넥션이 살아있었기 때문임
+    - 지연 로딩은 영속성 컨텍스트가 살아있어야 가능하고, 영속성 컨텍스트는 기본적으로 데이터베이스 커넥션을 유지함(큰 장점)
+- 하지만 이 전략은 너무 오랜 시간 동안 데이터베이스 커넥션 리소스를 사용하기 때문에, 실시간 트래픽이 중요한 애플리케이션에서는 커넥션이 모자랄 수 있음
+  - 이는 결국 장애로 이어질 수 있음
+  - ex) 컨트롤러에서 외부 API를 호출하면 외부 API 대기 시간 만큼 커넥션 리소스를 반환하지 못하고 유지해야 함
+- 지연로딩을 적극 활용할 수 있다는 장점이 있지만, DB 커넥션을 너무 오래 갖고 있다는 치명적인 단점이 존재함
+
+<br/>
+
+### OSIV OFF
+
+<img width="500" src="https://github.com/jmxx219/SpringJPA/assets/52346113/e3e2fff9-69ef-4dfe-aaed-431d304eb04d">
+<br/>
+
+- `spring.jpa.open-in-view`: `false`(OSIV 종료)
+- OSIV를 끄면 트랜잭션을 종료할 때 영속성 컨텍스트를 닫고, 데이터베이스 커넥션도 반환함
+  - 따라서 커넥션 리소스를 낭비하지 않음
+- 대신 모든 지연로딩을 트랜잭션 안에서 처리해야 함
+  - 따라서 지금까지 작성한 많은 지연 로딩 코드를 트랜잭션 안으로 넣어야 하는 단점이 존재함 
+- view template에서 지연로딩이 동작하지 않음
+- 결론적으로 트랜잭션이 끝나기 전에 지연 로딩을 강제로 호출해두거나 fetch join을 사용해야 함
+
+<br/>
+
+> 실무 활용 팁  
+> - 고객 서비스 기반의 트래픽이 많은 실시간 API ➜ OSIV를 끈다 
+> - ADMIN 처럼 커넥션을 많이 사용하지 않는 곳 ➜ OSIV를 켠다
+
+<br/>
+
+### 커멘드와 쿼리 분리
+
+- Command와 Query를 분리하는 것은 실무에서 OSIV를 끈 상태로 복잡성을 관리하는 좋은 방법
+- 핵심 비즈니스 로직
+  - 정책적인 것이라 잘 변경되지 않음(라이프라이클이 느림)
+  - 특정 엔티티 몇 개를 등록하거나 수정하는 것이므로 성능이 크게 문제되지 않음
+- 화면이나 API에 맞춘 서비스
+  - 요구사항에 따라 자주 바뀌고 라이프사이클이 빠름
+  - 복잡한 화면을 출력하기 위한 쿼리는 화면에 맞추어 성능을 최적화 하는 것이 중요함
+  - 복잡성에 비해 핵심 비즈니스 로직에 큰 영향을 주지 않음
+- 따라서 크고 복잡한 애플리케이션을 개발한다면, 이 둘의 관심사를 명확하게 분리하는 선택은 유지보수 관점에서 충분히 의미 있음
+  - 즉, 둘 사이의 라이프 사이클이 다르기 때문에 명확하게 분리하는 것이 좋음
+- ex) 현재 OrderService 변경
+  - `OrderService`: 핵심 비즈니스 로직
+  - `OrderQueryService`: 화면이나 API에 맞춘 서비스(주로 읽기 전용 트랜잭션 사용)
+  - 보통 서비스 계층에서 트랜잭션을 유지하기 때문에 두 서비스 모두 트랜잭션을 유지하면서 지연로딩을 사용할 수 있음
+
+<br/>
+<br/>
