@@ -65,8 +65,16 @@
 [웹 애플리케이션 개발](https://github.com/jmxx219/TIL/blob/main/Spring-JPA/jpashop/README.md), [API 개발과 성능 최적화](https://github.com/jmxx219/TIL/blob/main/Spring-JPA/jpashop/API%20%EA%B0%9C%EB%B0%9C%EA%B3%BC%20%EC%84%B1%EB%8A%A5%20%EC%B5%9C%EC%A0%81%ED%99%94.md)
 
 
+<br/>
+<br/>
 
+## chat-server
 
+`websocket` [채팅 서버 구축 (1) - Websocket](https://jmxx219.tistory.com/77)  
+
+`websocket-stomp` [채팅 서버 구축 (2) - STOMP](https://jmxx219.tistory.com/78)  
+
+`redis` [채팅 서버 구축 (3) - Redis의 Pub/Sub](https://jmxx219.tistory.com/79)
 
 
 <br/>
