@@ -64,6 +64,11 @@
 `/jpashop`
 [웹 애플리케이션 개발](https://github.com/jmxx219/TIL/blob/main/Spring-JPA/jpashop/README.md), [API 개발과 성능 최적화](https://github.com/jmxx219/TIL/blob/main/Spring-JPA/jpashop/API%20%EA%B0%9C%EB%B0%9C%EA%B3%BC%20%EC%84%B1%EB%8A%A5%20%EC%B5%9C%EC%A0%81%ED%99%94.md)
 
+<br/>
+<br/>
+
+## Practical Testing
+
 
 <br/>
 <br/>
@@ -81,6 +86,8 @@
 <br/>
 
 ---
-`강의` : [김영한의 스프링 완전 정복](https://www.inflearn.com/roadmaps/373)  
 
-`강의` : [김영한의 스프링 부트와 JPA 실무 완전 정복 로드맵](https://www.inflearn.com/roadmaps/149)
+`강의`
+- [김영한의 스프링 완전 정복](https://www.inflearn.com/roadmaps/373)  
+- [김영한의 스프링 부트와 JPA 실무 완전 정복 로드맵](https://www.inflearn.com/roadmaps/149)
+- [Practical Testing: 실용적인 테스트 가이드](https://www.inflearn.com/course/practical-testing-%EC%8B%A4%EC%9A%A9%EC%A0%81%EC%9D%B8-%ED%85%8C%EC%8A%A4%ED%8A%B8-%EA%B0%80%EC%9D%B4%EB%93%9C)
