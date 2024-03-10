@@ -69,17 +69,17 @@
 
 ## Practical Testing
 
+- [테스트는 왜 필요할까?](https://github.com/jmxx219/TIL/blob/main/Testing/1.%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%8A%94%20%EC%99%9C%20%ED%95%84%EC%9A%94%ED%95%A0%EA%B9%8C%3F.md)
+
 
 <br/>
 <br/>
 
 ## chat-server
 
-`websocket` [채팅 서버 구축 (1) - Websocket](https://jmxx219.tistory.com/77)  
-
-`websocket-stomp` [채팅 서버 구축 (2) - STOMP](https://jmxx219.tistory.com/78)  
-
-`redis` [채팅 서버 구축 (3) - Redis의 Pub/Sub](https://jmxx219.tistory.com/79)
+- `websocket` [채팅 서버 구축 (1) - Websocket](https://jmxx219.tistory.com/77)  
+- `websocket-stomp` [채팅 서버 구축 (2) - STOMP](https://jmxx219.tistory.com/78)  
+- `redis` [채팅 서버 구축 (3) - Redis의 Pub/Sub](https://jmxx219.tistory.com/79)
 
 
 <br/>
