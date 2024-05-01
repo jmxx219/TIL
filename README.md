@@ -70,9 +70,8 @@
 ## Practical Testing
 
 - [테스트는 왜 필요할까?](https://github.com/jmxx219/TIL/blob/main/Testing/1.%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%8A%94%20%EC%99%9C%20%ED%95%84%EC%9A%94%ED%95%A0%EA%B9%8C%3F.md)
-- [단위 테스트](https://github.com/jmxx219/TIL/blob/main/Testing/2.%20%EB%8B%A8%EC%9C%84%20%ED%85%8C%EC%8A%A4%ED%8A%B8.md)
-- [TDD](https://github.com/jmxx219/TIL/blob/main/Testing/3.%20TDD.md)
-- [테스트는 [문서]다.](https://github.com/jmxx219/TIL/blob/main/Testing/4.%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%8A%94%20[]%EB%8B%A4.md)
+- [단위 테스트와 TDD](https://github.com/jmxx219/TIL/blob/main/Testing/2.%20%EB%8B%A8%EC%9C%84%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EC%99%80%20TDD.md)
+- [Spring & JPA 기반 테스트](https://github.com/jmxx219/TIL/blob/main/Testing/3.%20Spring%20%26%20JPA%20%EA%B8%B0%EB%B0%98%20%ED%85%8C%EC%8A%A4%ED%8A%B8.md)
 
 <br/>
 <br/>
