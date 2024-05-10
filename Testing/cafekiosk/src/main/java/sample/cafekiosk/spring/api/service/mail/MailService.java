@@ -18,11 +18,12 @@ public class MailService {
 		boolean result = mailSendClient.sendEmail(fromEmail, toEmail, subject, content);
 		if(result) {
 			mailSendHistoryRepository.save(MailSendHistory.builder()
-					.fromEmail(fromEmail)
-					.toEmail(toEmail)
-					.subject(subject)
-					.content(content)
-				.build());
+				.fromEmail(fromEmail)
+				.toEmail(toEmail)
+				.subject(subject)
+				.content(content)
+				.build()
+			);
 			return true;
 		}
 		return false;
