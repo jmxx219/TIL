@@ -12,10 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@ActiveProfiles("test")
+import jakarta.transaction.Transactional;
+import sample.cafekiosk.spring.IntegrationTestSupport;
+
+// @ActiveProfiles("test")
 // @SpringBootTest
-@DataJpaTest
-class ProductRepositoryTest {
+// @DataJpaTest
+@Transactional
+class ProductRepositoryTest extends IntegrationTestSupport {
 
 	@Autowired
 	private ProductRepository productRepository;

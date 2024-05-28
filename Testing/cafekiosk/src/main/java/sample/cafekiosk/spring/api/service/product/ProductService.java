@@ -29,11 +29,12 @@ import sample.cafekiosk.spring.domain.product.ProductRepository;
 public class ProductService {
 
 	private final ProductRepository productRepository;
+	private final ProductNumberFactory productNumberFactory;
 
 	@Transactional
 	public ProductResponse createProduct(ProductCreateServiceRequest request) {
 		// nextProductNumber -> DB에서 마지막 저장된 Product의 상품 번호를 읽어와서 +1
-		String nextProductNumber = createNextProductNumber();
+		String nextProductNumber = productNumberFactory.createNextProductNumber();
 
 		Product product = request.toEntity(nextProductNumber);
 		Product savedProduct = productRepository.save(product);
@@ -49,15 +50,15 @@ public class ProductService {
 			.collect(Collectors.toList());
 	}
 
-	private String createNextProductNumber() {
-		String latestProductNumber = productRepository.findLatestProductNumber();
-		if(latestProductNumber == null) {
-			return "001";
-		}
-
-		int latestProductNumberInt = Integer.parseInt(latestProductNumber);
-		int nextProductNumberInt = latestProductNumberInt + 1;
-
-		return String.format("%03d", nextProductNumberInt);
-	}
+	// private String createNextProductNumber() {
+	// 	String latestProductNumber = productRepository.findLatestProductNumber();
+	// 	if(latestProductNumber == null) {
+	// 		return "001";
+	// 	}
+	//
+	// 	int latestProductNumberInt = Integer.parseInt(latestProductNumber);
+	// 	int nextProductNumberInt = latestProductNumberInt + 1;
+	//
+	// 	return String.format("%03d", nextProductNumberInt);
+	// }
 }
