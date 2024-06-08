@@ -73,6 +73,7 @@
 - [단위 테스트와 TDD](https://github.com/jmxx219/TIL/blob/main/Testing/2.%20%EB%8B%A8%EC%9C%84%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EC%99%80%20TDD.md)
 - [Spring & JPA 기반 테스트](https://github.com/jmxx219/TIL/blob/main/Testing/3.%20Spring%20%26%20JPA%20%EA%B8%B0%EB%B0%98%20%ED%85%8C%EC%8A%A4%ED%8A%B8.md)
 - [더 나은 테스트 작성하기](https://github.com/jmxx219/TIL/blob/main/Testing/4.%20%EB%8D%94%20%EB%82%98%EC%9D%80%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EC%9E%91%EC%84%B1%ED%95%98%EA%B8%B0.md)
+- [학습 테스트와 Spring REST Docs](https://github.com/jmxx219/TIL/blob/main/Testing/5.%20%ED%95%99%EC%8A%B5%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EC%99%80%20Spring%20REST%20Docs.md)
 
 <br/>
 <br/>
