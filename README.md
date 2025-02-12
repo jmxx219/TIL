@@ -97,6 +97,8 @@
 
 [Real MySQL 8.0](https://github.com/jmxx219/TIL/tree/main/%EB%8F%84%EC%84%9C/Real%20MySQL%208.0)
 
+[컴퓨터 밑바닥의 비밀](https://github.com/jmxx219/TIL/tree/main/%EB%8F%84%EC%84%9C/%EC%BB%B4%ED%93%A8%ED%84%B0%20%EB%B0%91%EB%B0%94%EB%8B%A5%EC%9D%98%20%EB%B9%84%EB%B0%80)
+
 <br/>
 <br/>
 
