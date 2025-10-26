@@ -93,4 +93,4 @@
 
 ## DB
 
-[Real MySQL 8.0](https://github.com/jmxx219/TIL/tree/DB/DBMS/MySQL/Real%20MySQL%208.0)
+[Real MySQL 8.0](https://github.com/jmxx219/TIL/tree/main/DB/DBMS/MySQL/Real%20MySQL%208.0)
